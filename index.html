@@ -4,56 +4,47 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#08111f" />
-  <title>Plan semanal · Gym + Bici + Run</title>
+  <title>ADN Training · Plan semanal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <main class="app">
     <header>
       <div>
-        <p class="eyebrow">Plan híbrido</p>
-        <h1>Entrena con intención</h1>
+        <p class="eyebrow">ADN Training · Plan híbrido</p>
+        <h1>Entrena y come con intención</h1>
       </div>
       <button class="today-btn" id="todayBtn">Hoy</button>
     </header>
 
-    <nav class="week" id="week" aria-label="Dias de la semana"></nav>
+    <nav class="week" id="week" aria-label="Días de la semana"></nav>
 
-    <section class="nav" aria-label="Navegacion por dias">
-      <button id="prevBtn" aria-label="Dia anterior">‹</button>
-      <div class="date">
-        <strong id="dateTitle"></strong>
-        <span id="dateSub"></span>
-      </div>
-      <button id="nextBtn" aria-label="Dia siguiente">›</button>
+    <section class="nav" aria-label="Navegación por días">
+      <button id="prevBtn" aria-label="Día anterior">‹</button>
+      <div class="date"><strong id="dateTitle"></strong><span id="dateSub"></span></div>
+      <button id="nextBtn" aria-label="Día siguiente">›</button>
     </section>
 
     <section class="hero" id="hero"></section>
 
     <section>
-      <div class="section-title">
-        <h3 id="workoutTitle">Sesion</h3>
-        <span>Toca para ampliar</span>
-      </div>
+      <div class="section-title"><h3 id="workoutTitle">Sesión</h3><span>Toca para ampliar</span></div>
       <div class="workouts" id="workouts"></div>
     </section>
 
     <section>
-      <div class="section-title">
-        <h3>Recuperacion y foco</h3>
-        <span id="effort"></span>
-      </div>
+      <div class="section-title"><h3>Recuperación y foco</h3><span id="effort"></span></div>
       <div class="recovery" id="recovery"></div>
     </section>
 
-    <p class="footer">
-      Plan base de maquinas · Ajusta los asientos antes de empezar · Si hay dolor articular agudo, dete el ejercicio y consulta al personal del gimnasio.
-    </p>
-  </main>
+    <section id="nutrition"></section>
+    <section id="weeklySummary"></section>
 
+    <p class="footer">Plan práctico para ganancia muscular gradual. Las cantidades son orientativas y no sustituyen el seguimiento de un dietista-nutricionista o médico, especialmente si reaparecen molestias digestivas.</p>
+  </main>
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
