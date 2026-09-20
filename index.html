@@ -15,11 +15,12 @@
     <header>
       <div>
         <p class="eyebrow">ADN Training · Plan híbrido</p>
-        <h1>Entrena y come con intención</h1>
+        <h1>Entrena con intención</h1>
       </div>
       <button class="today-btn" id="todayBtn">Hoy</button>
     </header>
 
+    <section id="phaseCard"></section>
     <nav class="week" id="week" aria-label="Días de la semana"></nav>
 
     <section class="nav" aria-label="Navegación por días">
@@ -31,19 +32,21 @@
     <section class="hero" id="hero"></section>
 
     <section>
-      <div class="section-title"><h3 id="workoutTitle">Sesión</h3><span>Toca para ampliar</span></div>
-      <div class="workouts" id="workouts"></div>
+      <div class="section-title"><h3>Plan de hoy</h3><span id="effort"></span></div>
+      <div class="session-list" id="sessions"></div>
     </section>
 
+    <section id="gymSection"></section>
+
     <section>
-      <div class="section-title"><h3>Recuperación y foco</h3><span id="effort"></span></div>
-      <div class="recovery" id="recovery"></div>
+      <div class="section-title"><h3>Cumplimiento</h3><span>Se guarda en este dispositivo</span></div>
+      <div class="completion" id="completion"></div>
     </section>
 
     <section id="nutrition"></section>
     <section id="weeklySummary"></section>
 
-    <p class="footer">Plan práctico para ganancia muscular gradual. Las cantidades son orientativas y no sustituyen el seguimiento de un dietista-nutricionista o médico, especialmente si reaparecen molestias digestivas.</p>
+    <p class="footer">Plan práctico y progresivo. Las estimaciones nutricionales no sustituyen seguimiento médico o dietético, especialmente ante molestias digestivas.</p>
   </main>
   <script src="data.js"></script>
   <script src="app.js"></script>

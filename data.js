@@ -1,6 +1,9 @@
-/* Pega este archivo como data.js en la raíz del repositorio.
-   El menú es una base práctica de volumen limpio, no una prescripción médica.
-   Cantidades de pasta/arroz: peso EN SECO. */
+const APP_CONFIG = {
+  gymStart: '2026-10-01',
+  adaptationEnd: '2026-10-28',
+  progressionStart: '2026-10-29',
+  weightKg: 54.1
+};
 
 const IMG = {
   chest: 'https://d2u1z1lopyfwlx.cloudfront.net/thumbnails/1c1a27a1-10df-54c6-9b8a-91700068a8d3/d90d4096-05bd-5065-a360-9a5d5368b3e4.jpg',
@@ -18,98 +21,147 @@ const videos = {
 };
 
 const ex = (group, title, sets, rest, notes, alt, video, image, icon = '🏋️') => ({ group, title, sets, rest, notes, alt, video, image, icon });
-const meal = (slot, title, quantity, kcal, protein, carbs, fat, why, swaps = [], timing = '') => ({ slot, title, quantity, kcal, protein, carbs, fat, why, swaps, timing });
+const session = (title, kind, target, notes, icon) => ({ title, kind, target, notes, icon });
 
-const nutrition = {
-  gym: {
-    label: 'Gym · tarde',
-    target: { kcal: 2350, protein: 110, carbs: 315, fat: 65 },
-    context: 'La proteína se mantiene estable para dar materia prima al músculo. Los hidratos se concentran en comida, merienda y cena: alimentan el entrenamiento de las 19:00 y reponen energía sin necesitar un superávit grande.',
-    meals: [
-      meal('Desayuno', 'Pan, queso de Burgos, pavo y fruta', '100 g pan + 100 g queso de Burgos + 60 g pavo + 1 fruta', 590, 34, 78, 15, 'Combina hidrato fácil de usar con proteína repartida desde primera hora. El queso de Burgos aporta proteína con una grasa normalmente más moderada que quesos curados.', ['2 huevos + 80 g pan + fruta', 'Yogur alto en proteína si lo toleras + pan + fruta']),
-      meal('Media mañana', 'Fruta + bocadillo pequeño de pollo o pavo', '1 fruta + 70 g pan + 70 g pollo/pavo', 350, 25, 50, 5, 'Evita llegar con demasiada hambre a la comida y reparte proteína en una toma adicional, algo útil cuando quieres desarrollar tren superior.', ['Fruta + 100 g queso de Burgos + 60 g pan']),
-      meal('Comida', 'Comida de casa o plato base', 'Ver selector de comida de casa', 620, 32, 80, 16, 'La comida de casa es parte del plan, no un extra. Legumbres, patata, pollo, magro o pisto aportan una base realista; después se ajusta merienda y cena según lo que haya habido.', ['Pasta 110 g seca + pollo 160 g + tomate cocinado + 10 g AOVE', 'Arroz 110 g seco + pollo/magro 160 g + verdura tolerada']),
-      meal('Pre-entreno · 17:30–18:00', 'Plátano + pan + proteína ligera', '1 plátano + 70 g pan + 60 g pavo o queso Burgos', 365, 18, 65, 5, 'Aporta hidrato disponible para entrenar por la tarde, sin recurrir a una merienda pesada. Deja 60–90 min antes del gym para una digestión más cómoda.', ['2–3 tortitas de arroz + plátano + yogur si lo toleras', 'Pan con mermelada + queso fresco']),
-      meal('Cena post-gym', 'Arroz o pasta + pollo/magro + pisto/verdura + fruta', '100 g arroz/pasta seca + 170 g pollo o magro + verdura + 1 fruta', 690, 42, 105, 16, 'Después del gym, proteína e hidratos ayudan a recuperar y a sostener la progresión de cargas. No hace falta una ventana de minutos: una cena completa tras entrenar es suficiente.', ['Ñoquis 300 g + 170 g pollo/magro + tomate cocinado', 'Patata 450 g + 170 g pollo/magro + pan 40 g']),
-    ]
+const phases = {
+  prep: {
+    id: 'prep', label: 'Fase 0 · Preparación', range: 'Hasta el 30 de septiembre', color: '#64748b',
+    description: 'Aún no hay gimnasio. Mantén bici y carrera sin añadir fatiga innecesaria; prepara la rutina, la nutrición y la constancia para empezar máquinas el 1 de octubre.',
+    effort: 'RPE 2–7/10 · sin fuerza estructurada', nutrition: 'recovery'
   },
-  gymRun: {
-    label: 'Gym + carrera · tarde',
-    target: { kcal: 2500, protein: 112, carbs: 355, fat: 62 },
-    context: 'Este día reúne fuerza y carrera. Se aumenta principalmente el hidrato, no la grasa: necesitas energía para las dos sesiones y recuperar glucógeno sin que el plan dependa de comida ultraprocesada.',
-    meals: [
-      meal('Desayuno', 'Pan, queso de Burgos, pavo y fruta', '110 g pan + 100 g queso de Burgos + 60 g pavo + 1 fruta', 620, 35, 88, 15, 'Empiezas a cubrir parte de los hidratos del día sin una comida extraña. La fruta aporta variedad y es fácil de adaptar a la temporada.', ['2 huevos + pan + fruta', 'Pan con pollo + fruta']),
-      meal('Media mañana', 'Fruta + queso fresco o pavo', '1 fruta + 100 g queso Burgos + 60 g pan', 335, 18, 45, 11, 'Mantiene una distribución de proteína razonable sin llegar con hambre extrema a la comida.', ['Bocadillo pequeño de pavo/pollo + fruta']),
-      meal('Comida', 'Comida de casa o plato de hidratos', 'Ver selector de comida de casa', 650, 32, 90, 16, 'La comida debe dejar margen para digerir antes de entrenar. Potajes y lentejas encajan, pero evita una ración enorme si sabes que correrás pocas horas después.', ['Pasta 130 g seca + pollo 160 g + tomate + 10 g AOVE', 'Arroz 130 g seco + magro/pollo 160 g + pisto']),
-      meal('Pre-entreno · 17:30–18:00', 'Plátano + pan/tortitas + pavo', '1 plátano + 90 g pan o 5 tortitas + 60 g pavo', 420, 19, 78, 4, 'El extra de hidrato protege la calidad del gym y evita empezar la carrera con el depósito vacío. Mantén la grasa y la fibra bajas para no notar pesadez.', ['2 plátanos + 3 tortitas + queso fresco', 'Pan con miel/mermelada + pavo']),
-      meal('Cena post-gym + run', 'Pasta/arroz/ñoquis + proteína magra + fruta', '125 g pasta/arroz seco o 350 g ñoquis + 180 g pollo/magro + fruta', 745, 45, 120, 16, 'Es la comida de recuperación más importante del día: hidratos para reponer y proteína para la adaptación al gimnasio.', ['Patata 500 g + pollo 180 g + pan 60 g', 'Arroz 125 g seco + lomo de cerdo magro + tomate cocinado']),
-    ]
+  adaptation: {
+    id: 'adaptation', label: 'Fase 1 · Adaptación', range: '1–28 de octubre', color: '#0f766e',
+    description: 'Aprende ajustes y recorridos en máquinas. El objetivo es repetir bien, no acabar reventado: deja 3–4 repeticiones en recámara y termina con ganas de volver.',
+    effort: 'RIR 3–4 · sin fallo muscular', nutrition: 'training'
   },
-  bike: {
-    label: 'Ciclismo · tarde',
-    target: { kcal: 2550, protein: 110, carbs: 370, fat: 62 },
-    context: 'En la bici la limitación práctica suele ser el hidrato disponible. Comer más carbohidrato alrededor de la salida mejora el rendimiento y permite conservar proteína para el músculo, en vez de usarla como combustible.',
-    meals: [
-      meal('Desayuno', 'Pan, queso de Burgos, pavo y fruta', '110 g pan + 100 g queso de Burgos + 60 g pavo + 1 fruta', 620, 35, 88, 15, 'Base simple para empezar el día con energía y proteína.', ['Huevos + pan + fruta']),
-      meal('Media mañana', 'Fruta + bocadillo pequeño', '1 fruta + 80 g pan + 70 g pollo/pavo', 385, 25, 58, 5, 'Una toma sencilla para llegar bien a la comida sin depender de picoteo.', ['Fruta + queso Burgos + pan']),
-      meal('Comida', 'Comida de casa o arroz/pasta', 'Ver selector de comida de casa', 650, 32, 90, 16, 'La comida principal construye el depósito para la bici de la tarde. Si hay lentejas o potaje, deja al menos 3–4 h antes de entrenar.', ['Arroz 130 g seco + pollo 160 g', 'Pasta 130 g seca + magro con tomate']),
-      meal('Pre-bici · 17:30–18:00', 'Plátano + pan con mermelada y pavo', '1 plátano + 90 g pan + mermelada + 50 g pavo', 450, 17, 90, 4, 'Hidratos sencillos y poca grasa para que la energía esté disponible sin pesadez al pedalear.', ['Tortitas de arroz + plátano + zumo si lo toleras']),
-      meal('Durante bici · si >90 min', 'Hidrato fácil de transportar', '30–60 g hidrato/hora: plátano, bebida isotónica, gel o barrita baja en grasa', 180, 0, 45, 0, 'Comer durante salidas largas evita llegar vacío, mejora la calidad del final de la ruta y facilita recuperarte. En salidas cortas suele bastar agua si has comido bien.', ['1 plátano por hora aproximado', '500–750 ml bebida isotónica + snack']),
-      meal('Cena post-bici', 'Arroz/pasta + pollo o cerdo magro + fruta', '110 g arroz/pasta seca + 170 g proteína magra + fruta', 690, 42, 105, 16, 'Recupera energía y proteína tras la bici para que el entrenamiento sume sin arrastrar fatiga al día siguiente.', ['Ñoquis + pollo + tomate cocinado', 'Patata + magro con tomate + pan']),
-    ]
-  },
-  bikeHard: {
-    label: 'Ciclismo calidad · tarde',
-    target: { kcal: 2650, protein: 110, carbs: 395, fat: 62 },
-    context: 'La diferencia respecto al rodaje es un poco más de hidrato antes, durante y después. Las series de bici se benefician de llegar con energía; no necesitas subir grandes cantidades de grasa.',
-    meals: [],
-    extra: 'Añade una pieza de fruta, 30–40 g de pan o una bebida isotónica adicional respecto al día de bici Z2, especialmente si la salida dura más de 75–90 minutos.'
-  },
-  long: {
-    label: 'Fondo o carrera · mañana',
-    target: { kcal: 2750, protein: 110, carbs: 420, fat: 62 },
-    context: 'Al entrenar por la mañana, el desayuno debe ser ligero y digerible. La mayor parte de las calorías se recupera después: comer durante y tras una salida larga evita acabar el día con un déficit grande, que dificultaría ganar músculo.',
-    meals: [
-      meal('Antes de salir · 60–120 min', 'Desayuno ligero de hidratos', '1–2 plátanos + 80 g pan con miel/mermelada; añade pavo o queso fresco si te entra', 450, 12, 95, 4, 'Prioriza hidrato fácil y baja grasa. No es el momento de legumbres, potajes o una comida pesada; buscas energía sin molestias durante bici o carrera.', ['Tostadas + fruta', 'Pan + mermelada + zumo si lo toleras']),
-      meal('Durante · si >90 min', 'Hidratación y carbohidrato', '30–60 g hidrato/hora + agua según calor', 250, 0, 60, 0, 'En fondo, comer es parte del entrenamiento. Te permite mantener ritmo, protege la recuperación y evita atracones posteriores por llegar vacío.', ['Plátano, geles, barritas bajas en grasa, isotónica']),
-      meal('Post-entreno / comida', 'Comida de casa o pasta/arroz con proteína', 'Ver selector de comida de casa; completa con fruta/pan si hace falta', 780, 40, 120, 18, 'Tras una sesión larga, una comida completa con hidrato y 25–40 g de proteína devuelve energía y ofrece materia prima para reparar tejido.', ['Pasta 140 g seca + pollo 180 g', 'Potaje/lentejas con pollo + pan + fruta']),
-      meal('Merienda', 'Fruta + queso de Burgos o bocadillo', '1–2 frutas + 100 g queso Burgos o 80 g pan con pavo', 350, 22, 50, 10, 'Mantiene energía estable y ayuda a repartir proteína tras una mañana exigente.', ['Yogur alto en proteína si lo toleras + fruta + pan']),
-      meal('Cena', 'Patata/arroz/ñoquis + proteína magra', 'Patata 400 g o arroz 90 g seco + 170 g pollo/magro + pisto/verdura', 650, 40, 90, 16, 'La recuperación continúa por la tarde. Cena suficiente no equivale a ganar grasa: repone lo gastado y favorece llegar bien al lunes.', ['Ñoquis 300 g + pollo + tomate', 'Pisto + huevo + pan + queso fresco']),
-    ]
-  },
-  recovery: {
-    label: 'Recuperación · domingo',
-    target: { kcal: 2200, protein: 110, carbs: 270, fat: 68 },
-    context: 'Bajar algo los hidratos en recuperación no significa recortar proteína ni pasar hambre. Sigues alimentando el músculo; simplemente no necesitas el mismo combustible que un día de bici larga.',
-    meals: [
-      meal('Desayuno', 'Pan, queso de Burgos/pavo y fruta', '80 g pan + 100 g queso Burgos + fruta', 450, 24, 60, 14, 'Sencillo, completo y fácil de sostener.', ['Huevos + pan + fruta']),
-      meal('Media mañana', 'Fruta + proteína ligera', '1 fruta + 60 g pavo o queso fresco', 170, 14, 20, 3, 'Mantiene la distribución de proteína sin llenar el día de calorías vacías.', ['Yogur alto en proteína si lo toleras']),
-      meal('Comida', 'Comida de casa o plato base', 'Ver selector de comida de casa', 620, 32, 75, 18, 'Las comidas caseras siguen encajando. Ajusta el pan/arroz adicional según la actividad real que hagas.', ['Arroz 90 g seco + pollo 160 g + pisto', 'Legumbres con pollo y patata en ración moderada']),
-      meal('Merienda', 'Fruta + pan/queso fresco', '1–2 frutas + 50 g pan + queso fresco', 260, 12, 42, 5, 'Evita llegar a la cena con ansiedad y ayuda a mantener una rutina estable.', ['Sandía/melón + queso Burgos + pan']),
-      meal('Cena', 'Proteína + patata/pan + verdura', '170 g pollo/magro + 300 g patata o 70 g pan + verdura', 600, 42, 65, 18, 'Mantiene proteína alta y una cantidad moderada de hidrato para recuperación sin necesidad de hacer un recorte agresivo.', ['Pisto con huevo, pollo y pan', 'Ñoquis 250 g + pavo/pollo + tomate']),
-    ]
+  progression: {
+    id: 'progression', label: 'Fase 2 · Progresión muscular', range: 'Desde el 29 de octubre', color: '#2563eb',
+    description: 'Empieza la progresión controlada. En compuestos trabaja normalmente a RIR 1–2; en aislamientos puedes acercarte al fallo técnico solo en la última serie si recuperas bien.',
+    effort: 'RIR 1–2 · fallo técnico puntual', nutrition: 'training'
   }
 };
 
-const homeMeals = {
-  potaje: { name: 'Potaje de alubias, espinacas, pollo y patata', estimate: { kcal: 650, protein: 35, carbs: 85, fat: 16 }, why: 'Es un plato completo: la alubia y la patata aportan hidrato; el pollo sube la proteína; las espinacas añaden micronutrientes. No es una comida “fuera de dieta”.', advice: 'En día de tarde, deja varias horas para digerir. Si el plato lleva poco pollo, completa con queso de Burgos, pavo o pollo en otra toma. En bici/gym+run, usa merienda con plátano y pan para asegurar energía.' },
-  lentejas: { name: 'Lentejas con pollo y patata', estimate: { kcal: 640, protein: 34, carbs: 82, fat: 15 }, why: 'Las lentejas suman hidrato, fibra y proteína vegetal; pollo y patata completan un plato especialmente útil en días de carga moderada.', advice: 'No es buena elección justo antes de correr por la fibra. Si entrenas por la tarde, una ración normal a mediodía suele encajar; si notas pesadez, baja algo la ración de legumbre y desplaza el hidrato a pan/fruta en merienda.' },
-  magro: { name: 'Magro con tomate', estimate: { kcal: 500, protein: 38, carbs: 25, fat: 24 }, why: 'Aporta proteína de calidad, pero por sí solo suele quedarse corto de hidrato para un día de entrenamiento. El tomate cocinado y una elaboración poco grasa lo hacen más fácil de encajar.', advice: 'Añade arroz, pasta, patata, ñoquis o pan según la carga: más en gym+run y bici; porción moderada en recuperación.' },
-  pisto: { name: 'Pisto manchego', estimate: { kcal: 330, protein: 10, carbs: 25, fat: 20 }, why: 'El pisto es una excelente base de verdura y sabor, pero habitualmente no cubre ni proteína ni energía suficientes como plato único para un deportista.', advice: 'Completa con 150–180 g de pollo/magro, 2 huevos o atún, y añade arroz, patata o pan. Si el tomate crudo/cocinado irrita, prioriza la versión que mejor toleres o sustitúyelo.' },
-  pasta: { name: 'Pasta con pollo y tomate', estimate: { kcal: 720, protein: 40, carbs: 105, fat: 15 }, why: 'Es una combinación muy eficiente: pasta para energía y pollo para proteína. Encaja especialmente bien antes o después de entrenar por la tarde.', advice: 'En bici/gym+run, sube un poco la pasta o añade pan/fruta. En recuperación, usa una ración algo menor y mantén el pollo.' },
-  arroz: { name: 'Arroz con pollo o magro', estimate: { kcal: 700, protein: 40, carbs: 100, fat: 15 }, why: 'El arroz es un hidrato fácil de ajustar por cantidad, y con pollo o magro forma una comida de recuperación simple y efectiva.', advice: 'Útil en todos los días; aumenta la ración los días de bici larga o doble sesión. Si comes arroz en seco, regístralo siempre como seco.' }
+function phaseFor(date) {
+  const key = date.toISOString().slice(0, 10);
+  if (key < APP_CONFIG.gymStart) return phases.prep;
+  if (key <= APP_CONFIG.adaptationEnd) return phases.adaptation;
+  return phases.progression;
+}
+
+const nutritionProfiles = {
+  recovery: { kcal: 2200, protein: 110, carbs: 270, fat: 68, note: 'Día suave: proteína estable y menos hidrato que en carga. No es recortar; es adaptar combustible al gasto.' },
+  bike: { kcal: 2500, protein: 110, carbs: 365, fat: 62, note: 'Bici: el extra viene sobre todo de hidrato para sostener pedaleo y recuperación, no de grasa.' },
+  training: { kcal: 2400, protein: 110, carbs: 330, fat: 64, note: 'Gym: proteína estable para músculo e hidrato suficiente para entrenar a las 19:00 y cenar recuperando.' },
+  double: { kcal: 2500, protein: 112, carbs: 355, fat: 62, note: 'Fuerza + carrera: más hidrato antes y después; la grasa no necesita subir para alimentar doble sesión.' },
+  long: { kcal: 2750, protein: 110, carbs: 420, fat: 62, note: 'Fondo: desayuna ligero, come durante si dura más de 90 min y recupera gran parte de la energía después.' }
 };
 
-const plan = {
-  1: {
-    type: 'GYM · PIERNA + CORE', color: '#6c4cf5', color2: '#1f3f8e', title: 'Mantén la base', intro: 'Pierna suficiente para conservar fuerza y robustez, sin dejarte vacío para la bici. Técnica, recorrido y control.', chips: ['45–55 min', 'RIR según fase', 'Máquinas'], effort: 'RIR 3–4 / 2–3 / 1–2', nutritionType: 'gym',
-    sessions: [ex('Cuádriceps · glúteo', 'Prensa de piernas', '3 × 10–12', '90–120 s', 'Pies a anchura de hombros. Baja sin despegar cadera o zona lumbar. Empuja desde mediopié-talón; no bloquees rodillas.', 'Hack squat guiada o multipower con banco/limitadores.', videos.machines, IMG.legpress, '🦵'), ex('Cuádriceps', 'Extensión de piernas', '2 × 12–15', '60–75 s', 'Alinea el eje de la máquina con la rodilla. Sube controlado, sin golpe al final del recorrido.', 'Prensa ligera con pies algo bajos.', videos.machines, null, '🦿'), ex('Isquios', 'Curl femoral sentado', '3 × 10–12', '75–90 s', 'Cadera pegada al asiento y rodillas alineadas con el eje. No dejes caer el peso al volver.', 'Curl femoral tumbado.', videos.machines, null, '🦿'), ex('Gemelos', 'Elevación de gemelos en máquina', '2 × 12–15', '60 s', 'Recorrido amplio: pausa arriba, estira abajo y no rebotes.', 'Gemelos en prensa de piernas.', videos.machines, null, '🦶'), ex('Core', 'Crunch en máquina', '2 × 12–15', '60 s', 'Flexiona el tronco; no tires de los brazos ni arquees la espalda.', 'Crunch en polea alta con cuerda.', videos.machines, null, '◉')],
-    recovery: ['Nada de fallo en pierna: el objetivo es mantenimiento y llegar bien al martes de bici.', 'Después, 5–10 min de movilidad suave de cadera/tobillo si lo notas necesario.', 'Prioriza una cena con proteína e hidratos para recuperar.']
-  },
-  2: { type: 'CICLISMO · BASE AERÓBICA', color: '#087f5b', color2: '#174f64', title: 'Suma sin desgastarte', intro: 'Rodaje aeróbico para disfrutar y construir fondo. Mantén el esfuerzo controlado: hoy no necesitas demostrar nada.', chips: ['60–120 min', 'Z2 predominante', 'Cadencia cómoda'], effort: 'RPE 4–5/10', nutritionType: 'bike', sessions: [ex('Ciclismo', 'Rodaje Z2 / fondo medio', '60–120 min', '—', 'Ritmo conversacional. Evita convertir cada repecho en una serie.', 'Rodillo: 60–75 min en Z2 estable.', videos.machines, null, '🚴')], recovery: ['Hidrátate; en salidas largas lleva carbohidrato suficiente.', 'Si las piernas pesan por el gym, reduce duración antes que forzar intensidad.', 'Cinco minutos muy suaves al terminar ayudan a cerrar la sesión.'] },
-  3: { type: 'GYM · SUPERIOR A + RUN', color: '#1565c0', color2: '#293d83', title: 'Base equilibrada', intro: 'Pecho, espalda, hombros y brazos con empujes y tracciones equilibrados. Después, carrera muy suave si te apetece.', chips: ['60–70 min', 'Superior completo', 'Run Z2 opcional'], effort: 'RIR 3–4 / 2–3 / 1–2', nutritionType: 'gymRun', sessions: [ex('Pecho', 'Press de pecho en máquina', '3 × 8–12', '90–120 s', 'Asas a mitad de pecho. Espalda y pies apoyados; muñecas neutras; empuja sin encoger hombros.', 'Press convergente o press sentado en polea.', videos.chest, IMG.chest, '▰'), ex('Espalda · vertical', 'Jalón al pecho en polea', '3 × 8–12', '90–120 s', 'Muslos sujetos, pecho alto. Lleva la barra al pecho superior, nunca detrás de la nuca.', 'Máquina de jalón convergente.', videos.pulldown, IMG.pulldown, '↧'), ex('Hombros', 'Press de hombros en máquina', '3 × 10–12', '90 s', 'Espalda apoyada; no arquees lumbar.', 'Press convergente de hombro.', videos.machines, null, '⬆'), ex('Espalda · horizontal', 'Remo sentado con apoyo de pecho', '3 × 10–12', '90 s', 'Torso estable. Tira con los codos hacia atrás y vuelve lento.', 'Remo sentado en polea baja.', videos.row, null, '↔'), ex('Pecho', 'Pec deck / aperturas', '2 × 12–15', '60–75 s', 'Hombros abajo; abraza hacia delante sin forzar el estiramiento.', 'Aperturas en polea.', videos.pec, null, '◜◝'), ex('Hombro posterior', 'Reverse pec deck', '2 × 12–15', '60–75 s', 'Pecho contra almohadilla, abre hacia atrás con control.', 'Face pull en polea.', videos.pec, null, '↩'), ex('Bíceps', 'Curl de bíceps en máquina', '2 × 10–15', '60–75 s', 'Codos quietos y torso inmóvil.', 'Curl en polea baja.', videos.machines, null, '⌁'), ex('Tríceps', 'Pushdown con cuerda', '2 × 10–15', '60–75 s', 'Codos pegados al cuerpo. Solo se mueve el antebrazo.', 'Máquina de tríceps.', videos.machines, null, '⌁')], recovery: ['Si corres: 20–30 min Z2, a ritmo conversacional.', 'Haz primero gym; separa sesiones si puedes.', 'No necesitas series de carrera hoy.'] },
-  4: { type: 'CICLISMO · CALIDAD CONTROLADA', color: '#0e7490', color2: '#164e63', title: 'Bici con propósito', intro: 'Día para una salida de tempo o series si llegas recuperado. Si no, mantén Z2: la consistencia gana a una sesión heroica.', chips: ['60–105 min', 'Tempo o Z2', 'Flexible'], effort: 'RPE 5–8/10', nutritionType: 'bikeHard', sessions: [ex('Ciclismo', 'Tempo / bloques controlados', '60–105 min', '3–5 min suave', 'Tras 15–20 min de calentamiento, prueba 2–3 bloques de 8–12 min a ritmo duro sostenible. Enfría 10 min.', 'Si hay fatiga: rodaje Z2 de 60–90 min.', videos.machines, null, '🚴')], recovery: ['No hagas intensidad si notas fatiga acumulada o mal sueño.', 'Tras calidad, mete carbohidratos y líquido durante las horas posteriores.', 'El viernes es tren superior; cuida recuperación general.'] },
-  5: { type: 'GYM · SUPERIOR B + RUN', color: '#b45309', color2: '#7c2d12', title: 'Volumen equilibrado', intro: 'Segundo estímulo completo de tren superior: espalda, pecho, hombros y brazos. Calidad de repeticiones antes que peso.', chips: ['60–75 min', 'Volumen superior', 'Run Z2 opcional'], effort: 'RIR 3–4 / 2–3 / 1–2', nutritionType: 'gymRun', sessions: [ex('Espalda · vertical', 'Jalón al pecho agarre neutro', '3 × 10–12', '90 s', 'Hombros abajo; lleva los codos hacia los bolsillos.', 'Jalón estándar o máquina iso-lateral.', videos.pull2, IMG.pulldown, '↧'), ex('Pecho', 'Press de pecho inclinado en máquina', '3 × 10–12', '90 s', 'Asas a nivel de pecho superior; escápulas estables.', 'Press convergente estándar.', videos.chest, IMG.chest, '▰'), ex('Espalda · horizontal', 'Remo sentado en polea baja', '3 × 10–12', '90 s', 'Columna neutra; tira hacia ombligo y no te balancees.', 'Remo con apoyo de pecho.', videos.row, null, '↔'), ex('Hombro lateral', 'Máquina de elevación lateral', '3 × 12–15', '60–75 s', 'Eleva hasta la línea de hombros sin impulso.', 'Elevación lateral unilateral en polea.', videos.machines, null, '⌃'), ex('Hombro posterior', 'Reverse pec deck', '2 × 12–15', '60–75 s', 'Pecho firme contra almohadilla y cuello relajado.', 'Face pull en polea.', videos.pec, null, '↩'), ex('Pecho', 'Pec deck / aperturas', '2 × 12–15', '60–75 s', 'Recorrido fluido y sin molestia de hombro.', 'Aperturas en polea.', videos.pec, null, '◜◝'), ex('Bíceps', 'Curl de bíceps en máquina', '3 × 10–15', '60–75 s', 'Sin balanceo; baja en 2–3 segundos.', 'Curl en polea baja.', videos.machines, null, '⌁'), ex('Bíceps / braquial', 'Curl martillo en polea baja', '2 × 12–15', '60–75 s', 'Palmas enfrentadas y muñecas rectas.', 'Curl máquina con agarre neutro.', videos.machines, null, '⌁'), ex('Tríceps', 'Pushdown con cuerda', '3 × 10–15', '60–75 s', 'Codos fijos; separa la cuerda abajo.', 'Máquina de tríceps.', videos.machines, null, '⌁'), ex('Tríceps', 'Extensión sobre cabeza en polea', '2 × 12–15', '60–75 s', 'Codos al frente/arriba; torso estable.', 'Máquina de tríceps.', videos.machines, null, '⌁')], recovery: ['Si corres: 15–25 min Z2.', 'No hagas calidad de carrera tras esta sesión.', 'Si el sábado será bici larga, cuida sueño e hidratos el viernes.'] },
-  6: { type: 'FINDE · BICI O CARRERA', color: '#7c3aed', color2: '#4c1d95', title: 'Elige el objetivo', intro: 'El día más flexible: prioriza bici larga si tu foco sigue siendo ciclismo; prioriza carrera larga si estás en un bloque de 10K.', chips: ['1–3 h', 'Una sesión clave', 'No ambas intensas'], effort: 'RPE 4–7/10', nutritionType: 'long', sessions: [ex('Opción A · ciclismo', 'Salida larga Z2', '1.5–3 h', '—', 'Ritmo estable y conversacional. Alimenta la salida si supera 90 min.', 'Rodillo Z2 de 75–120 min.', videos.machines, null, '🚴'), ex('Opción B · running', 'Tirada continua suave', '35–60 min', '—', 'Corre cómodo, sin perseguir ritmo.', 'Bici suave 60–90 min.', videos.machines, null, '🏃')], recovery: ['Escoge una única sesión principal. Evita combinar bici larga y carrera larga al principio.', 'Come e hidrátate durante la sesión según duración y temperatura.', 'Tras acabar: comida completa y descanso.'] },
-  0: { type: 'FINDE · RECUPERA O SUMA SUAVE', color: '#475569', color2: '#1e293b', title: 'Consistencia sostenible', intro: 'Día de recuperación activa o carrera/bici suave. Debe dejarte listo para el lunes, no más cansado.', chips: ['30–90 min', 'Z1–Z2', 'Recuperación'], effort: 'RPE 2–4/10', nutritionType: 'recovery', sessions: [ex('Opción A · bici', 'Rodaje regenerativo', '45–90 min', '—', 'Pedaleo cómodo, sin apretar repechos.', 'Descanso total + paseo de 20–40 min.', videos.machines, null, '🚴'), ex('Opción B · running', 'Rodaje suave', '25–45 min', '—', 'Ritmo conversacional y recorrido fácil.', 'Elíptica suave 25–40 min.', videos.machines, null, '🏃')], recovery: ['La prioridad es llegar fresco al lunes.', 'Si dudas entre entrenar y descansar, elige lo más suave.', 'Movilidad opcional 5–10 min.'] }
+const homeMeals = {
+  potaje: { name: 'Potaje de alubias, espinacas, pollo y patata', kcal: 650, protein: 35, carbs: 85, fat: 16, why: 'Es una comida completa: alubia y patata aportan hidrato, pollo aporta proteína y espinaca añade micronutrientes. No es una comida fuera de dieta.', advice: 'Si entrenas por la tarde, toma una ración normal a mediodía y deja varias horas para digerir. Completa con plátano + pan blanco tostado antes de entrenar.' },
+  lentejas: { name: 'Lentejas con pollo y patata', kcal: 640, protein: 34, carbs: 82, fat: 15, why: 'Aporta hidrato, proteína vegetal, fibra y pollo. Es especialmente útil como comida de mediodía en días de carga moderada.', advice: 'No la tomes justo antes de correr. Si te resulta pesada, reduce algo legumbre y usa fruta/pan en la merienda para llegar con energía.' },
+  magro: { name: 'Magro con tomate', kcal: 500, protein: 38, carbs: 25, fat: 24, why: 'El magro da proteína, pero necesita una guarnición de hidrato en días de entrenamiento para cubrir energía.', advice: 'Completa con arroz, pasta, patata, ñoquis o pan. Usa ración mayor de hidrato en bici, gym + run o salida larga.' },
+  pisto: { name: 'Pisto manchego', kcal: 330, protein: 10, carbs: 25, fat: 20, why: 'Es una gran base de verdura y sabor, pero no suele aportar suficiente proteína ni energía como plato único.', advice: 'Completa con pollo, huevo o magro, y añade arroz, patata o pan. Si el tomate da molestias, prioriza la versión y cantidad que toleres.' },
+  pasta: { name: 'Pasta con pollo y tomate', kcal: 720, protein: 40, carbs: 105, fat: 15, why: 'Pasta para energía y pollo para proteína: una combinación directa y muy útil alrededor de entrenamientos de tarde.', advice: 'En bici o gym + run, usa una ración algo mayor de pasta o añade fruta/pan. En recuperación, reduce pasta pero conserva proteína.' },
+  arroz: { name: 'Arroz con pollo o magro', kcal: 700, protein: 40, carbs: 100, fat: 15, why: 'El arroz se ajusta muy fácilmente en cantidad y con pollo o magro forma una comida simple de recuperación.', advice: 'Útil en todo el plan. Aumenta la ración en fondo, bici o doble sesión. Si lo pesas seco, regístralo siempre como seco.' }
 };
+
+const mealTemplates = {
+  recovery: [
+    ['Desayuno', 'Pan blanco tostado + queso de Burgos + fruta', '80 g pan + 100 g queso de Burgos + fruta', 'Aporta hidrato fácil y proteína desde temprano sin usar alimentos raros.'],
+    ['Media mañana', 'Fruta + jamón york', '1 fruta + 60–80 g jamón york', 'Es una toma rápida; el jamón york es tu opción de fiambre preferida.'],
+    ['Comida', 'Comida de casa o arroz/pasta + proteína', 'Selector de comida de casa', 'La comida casera sustituye esta comida, no se suma por encima.'],
+    ['Merienda', 'Fruta + pan tostado o queso de Burgos', '1–2 frutas + 50 g pan o queso fresco', 'Evita llegar a la cena con demasiada hambre y ayuda a repartir energía.'],
+    ['Cena', 'Pollo/magro + patata/pan + verdura', '170 g proteína + patata o pan + pisto/verdura', 'Mantiene proteína alta mientras adapta el hidrato a un día de menor carga.']
+  ],
+  bike: [
+    ['Desayuno', 'Pan blanco tostado + queso de Burgos + fruta', '100–110 g pan + 100 g queso de Burgos + fruta', 'Construye una base de hidrato y proteína para un día de bici de tarde.'],
+    ['Media mañana', 'Fruta + pan tostado con jamón york', '1 fruta + 70–80 g pan + 60 g jamón york', 'Distribuye energía y evita depender de un picoteo impulsivo.'],
+    ['Comida', 'Comida de casa o arroz/pasta + pollo', 'Selector de comida de casa', 'La comida de mediodía ayuda a llenar depósitos para pedalear a las 19:00.'],
+    ['Pre-bici · 17:30–18:00', 'Plátano + pan tostado con mermelada/jamón york', '1 plátano + 80–90 g pan', 'Hidrato disponible y baja grasa para pedalear sin sensación de pesadez.'],
+    ['Durante · si >90 min', 'Hidrato fácil de transportar', '30–60 g hidrato/hora', 'Comer durante fondos evita acabar vacío y mejora la recuperación posterior.'],
+    ['Cena post-bici', 'Arroz/pasta/ñoquis + pollo o magro + fruta', '110 g arroz/pasta seco o 300 g ñoquis + 170 g proteína', 'Reponer hidrato y proteína permite que la bici sume sin arrastrar fatiga.']
+  ],
+  training: [
+    ['Desayuno', 'Pan blanco tostado + queso de Burgos + fruta', '100 g pan + 100 g queso de Burgos + fruta', 'Combina hidrato fácil con proteína repartida desde primera hora.'],
+    ['Media mañana', 'Fruta + pan tostado con jamón york', '1 fruta + 70 g pan + 60–80 g jamón york', 'Mantiene una toma de proteína práctica sin cocinar para merendar.'],
+    ['Comida', 'Comida de casa o pasta/arroz + pollo/magro', 'Selector de comida de casa', 'La comida de casa es compatible con ganar músculo; solo se ajusta el resto del día.'],
+    ['Pre-gym · 17:30–18:00', 'Plátano + pan blanco tostado + jamón york/queso de Burgos', '1 plátano + 70 g pan + proteína ligera', 'Deja 60–90 min antes del gym: hidrato para rendir y poco volumen/grasa para digerir bien.'],
+    ['Cena post-gym', 'Arroz, pasta o ñoquis + pollo/magro + fruta', '100 g arroz/pasta seco o 300 g ñoquis + 170 g proteína', 'Cena completa que apoya recuperación y progresión de cargas.']
+  ],
+  double: [
+    ['Desayuno', 'Pan blanco tostado + queso de Burgos + fruta', '110 g pan + queso de Burgos + fruta', 'Empieza a cubrir el extra de hidrato de una sesión doble.'],
+    ['Media mañana', 'Fruta + pan tostado con jamón york', '1 fruta + 70 g pan + 60–80 g jamón york', 'Reparte energía y proteína para llegar a la tarde con margen.'],
+    ['Comida', 'Comida de casa o pasta/arroz alto en hidrato', 'Selector de comida de casa', 'Una comida completa con varias horas de margen ayuda a llegar a gym + carrera con energía.'],
+    ['Pre-entreno · 17:30–18:00', 'Plátano + pan/tortitas + jamón york', '1 plátano + 90 g pan o 4–6 tortitas', 'Más hidrato que un día de gym simple; baja grasa y fibra para evitar molestias.'],
+    ['Cena post-gym + run', 'Pasta/arroz/ñoquis + pollo/magro + fruta', '125 g pasta/arroz seco o 350 g ñoquis + 180 g proteína', 'Recupera glucógeno y ofrece proteína para adaptarte al gimnasio.']
+  ],
+  long: [
+    ['Antes de salir · 60–120 min', 'Plátano + pan blanco tostado con miel/mermelada', '1–2 plátanos + 80 g pan', 'Antes de bici/carrera por la mañana se busca hidrato fácil, bajo en grasa y digestible.'],
+    ['Durante · si >90 min', 'Hidratación + hidrato', '30–60 g hidrato/hora', 'Comer durante forma parte de un fondo: mantiene energía y reduce el déficit posterior.'],
+    ['Comida post-entreno', 'Comida de casa o pasta/arroz + pollo', 'Selector de comida de casa', 'Tras una sesión larga, una comida con hidrato y proteína repone energía sin obsesionarse con una ventana exacta.'],
+    ['Merienda', 'Fruta + queso de Burgos o pan con jamón york', '1–2 frutas + proteína ligera', 'Ayuda a seguir recuperando durante la tarde.'],
+    ['Cena', 'Patata/arroz/ñoquis + proteína magra', 'Patata 400 g o arroz 90 g seco + 170 g proteína', 'Termina de recuperar para empezar la semana sin déficit energético excesivo.']
+  ]
+};
+
+const gymPlans = {
+  1: [
+    ex('Cuádriceps · glúteo', 'Prensa de piernas', '3 × 10–12', '90–120 s', 'Pies a anchura de hombros. Baja sin despegar cadera/lumbar y no bloquees rodillas.', 'Hack squat guiada o multipower con limitadores.', videos.machines, IMG.legpress, '🦵'),
+    ex('Cuádriceps', 'Extensión de piernas', '2 × 12–15', '60–75 s', 'Alinea el eje de la máquina con la rodilla. Movimiento controlado, sin golpe final.', 'Prensa ligera con pies bajos.', videos.machines, null, '🦿'),
+    ex('Isquios', 'Curl femoral sentado', '3 × 10–12', '75–90 s', 'Cadera pegada al asiento; no dejes caer el peso en la vuelta.', 'Curl femoral tumbado.', videos.machines, null, '🦿'),
+    ex('Gemelos', 'Elevación de gemelos en máquina', '2 × 12–15', '60 s', 'Pausa arriba y estira abajo sin rebote.', 'Gemelos en prensa.', videos.machines, null, '🦶'),
+    ex('Core', 'Crunch en máquina', '2 × 12–15', '60 s', 'Flexiona tronco sin tirar de brazos ni arquear lumbar.', 'Crunch en polea.', videos.machines, null, '◉')
+  ],
+  3: [
+    ex('Pecho', 'Press de pecho en máquina', '3 × 8–12', '90–120 s', 'Asas a mitad de pecho; pies y espalda apoyados; no encoger hombros.', 'Press convergente o press en polea sentado.', videos.chest, IMG.chest, '▰'),
+    ex('Espalda · vertical', 'Jalón al pecho en polea', '3 × 8–12', '90–120 s', 'Pecho alto, codos abajo y atrás. Barra al pecho, nunca detrás de nuca.', 'Máquina de jalón convergente.', videos.pulldown, IMG.pulldown, '↧'),
+    ex('Hombros', 'Press de hombros en máquina', '3 × 10–12', '90 s', 'Espalda apoyada, sin arquear lumbar.', 'Press de hombro convergente.', videos.machines, null, '⬆'),
+    ex('Espalda · horizontal', 'Remo con apoyo de pecho', '3 × 10–12', '90 s', 'Torso estable; junta escápulas y vuelve despacio.', 'Remo sentado en polea baja.', videos.row, null, '↔'),
+    ex('Pecho', 'Pec deck / aperturas', '2 × 12–15', '60–75 s', 'Hombros bajos; no fuerces estiramiento.', 'Aperturas en polea.', videos.pec, null, '◜◝'),
+    ex('Hombro posterior', 'Reverse pec deck', '2 × 12–15', '60–75 s', 'Pecho contra almohadilla; abre sin encoger hombros.', 'Face pull en polea.', videos.pec, null, '↩'),
+    ex('Bíceps', 'Curl de bíceps en máquina', '2 × 10–15', '60–75 s', 'Codos quietos y torso inmóvil.', 'Curl en polea baja.', videos.machines, null, '⌁'),
+    ex('Tríceps', 'Pushdown con cuerda', '2 × 10–15', '60–75 s', 'Codos fijos al costado; mueve antebrazos.', 'Máquina de tríceps.', videos.machines, null, '⌁')
+  ],
+  5: [
+    ex('Espalda · vertical', 'Jalón al pecho agarre neutro', '3 × 10–12', '90 s', 'Hombros abajo; codos hacia los bolsillos.', 'Jalón estándar o iso-lateral.', videos.pull2, IMG.pulldown, '↧'),
+    ex('Pecho', 'Press de pecho inclinado en máquina', '3 × 10–12', '90 s', 'Escápulas estables y muñecas neutras.', 'Press convergente estándar.', videos.chest, IMG.chest, '▰'),
+    ex('Espalda · horizontal', 'Remo sentado en polea baja', '3 × 10–12', '90 s', 'Columna neutra; tira hacia ombligo sin balanceo.', 'Remo con apoyo de pecho.', videos.row, null, '↔'),
+    ex('Hombro lateral', 'Máquina de elevación lateral', '3 × 12–15', '60–75 s', 'Sube hasta línea de hombros sin impulso.', 'Elevación lateral en polea.', videos.machines, null, '⌃'),
+    ex('Hombro posterior', 'Reverse pec deck', '2 × 12–15', '60–75 s', 'Pecho firme y cuello relajado.', 'Face pull en polea.', videos.pec, null, '↩'),
+    ex('Pecho', 'Pec deck / aperturas', '2 × 12–15', '60–75 s', 'Recorrido fluido, sin dolor en hombro.', 'Aperturas en polea.', videos.pec, null, '◜◝'),
+    ex('Bíceps', 'Curl de bíceps en máquina', '3 × 10–15', '60–75 s', 'Sin balanceo; baja 2–3 segundos.', 'Curl en polea baja.', videos.machines, null, '⌁'),
+    ex('Bíceps / braquial', 'Curl martillo en polea baja', '2 × 12–15', '60–75 s', 'Palmas enfrentadas, muñecas rectas.', 'Curl con agarre neutro.', videos.machines, null, '⌁'),
+    ex('Tríceps', 'Pushdown con cuerda', '3 × 10–15', '60–75 s', 'Codos fijos; separa cuerda abajo.', 'Máquina de tríceps.', videos.machines, null, '⌁'),
+    ex('Tríceps', 'Extensión sobre cabeza en polea', '2 × 12–15', '60–75 s', 'Codos delante/arriba, torso estable.', 'Máquina de tríceps.', videos.machines, null, '⌁')
+  ]
+};
+
+function workoutFor(date) {
+  const day = date.getDay();
+  const phase = phaseFor(date);
+  const isGymPhase = phase.id !== 'prep';
+
+  if (!isGymPhase) {
+    const prep = {
+      1: [session('Descanso activo y movilidad', 'Recovery', '20–30 min', 'Paseo, movilidad ligera de cadera/tobillo/torácica y preparación del plan. No intentes sustituir el gym con una sesión dura.', '🧘')],
+      2: [session('Ciclismo Z2', 'Bike', '60–120 min', 'Ritmo conversacional. Mantén base aeróbica sin convertir cada salida en competición.', '🚴')],
+      3: [session('Carrera suave + movilidad', 'Run', '25–40 min', 'Carrera cómoda, sin series. Mantiene tolerancia al impacto y deja margen de recuperación.', '🏃')],
+      4: [session('Ciclismo tempo opcional', 'Bike', '60–105 min', 'Si duermes y recuperas bien: 2–3 bloques de 8–12 min tempo. Si no, Z2 simple.', '🚴')],
+      5: [session('Descanso o core/movilidad', 'Recovery', '15–25 min', 'Elige descanso total si hay fatiga. La constancia no necesita rellenar todos los días con carga.', '🧘')],
+      6: [session('Bici larga o carrera continua', 'Long', 'Una sesión principal', 'Elige una: bici Z2 de 1,5–3 h o carrera suave de 35–60 min. No combines ambas largas al principio.', '🚴')],
+      0: [session('Recuperación activa o descanso', 'Recovery', '30–75 min máximo', 'Paseo, bici muy suave o descanso. Debe dejarte preparado para el lunes.', '🌿')]
+    };
+    return { sessions: prep[day], gymExercises: [], nutrition: day === 2 || day === 4 ? 'bike' : day === 6 ? 'long' : 'recovery' };
+  }
+
+  const plan = {
+    1: { sessions: [session('Gym · pierna + core', 'Gym', '45–55 min', 'Mantenimiento de tren inferior, técnica y robustez sin competir con bici/running.', '🏋️')], gymExercises: gymPlans[1], nutrition: 'training' },
+    2: { sessions: [session('Ciclismo Z2', 'Bike', '60–120 min', 'Ritmo conversacional; volumen aeróbico sin desgastarte.', '🚴')], gymExercises: [], nutrition: 'bike' },
+    3: { sessions: [session('Gym · superior A', 'Gym', '60–70 min', 'Pecho, espalda, hombros y brazos equilibrados.', '🏋️'), session('Carrera Z2 opcional', 'Run', '20–30 min', 'Solo suave después del gym o separada varias horas; no hay series hoy.', '🏃')], gymExercises: gymPlans[3], nutrition: 'double' },
+    4: { sessions: [session('Ciclismo tempo / Z2', 'Bike', '60–105 min', 'Calidad solo si llegas recuperado; si no, Z2.', '🚴')], gymExercises: [], nutrition: 'bike' },
+    5: { sessions: [session('Gym · superior B', 'Gym', '60–75 min', 'Segundo estímulo equilibrado de tren superior.', '🏋️'), session('Carrera Z2 opcional', 'Run', '15–25 min', 'Suave; reserva la calidad de carrera para otro momento.', '🏃')], gymExercises: gymPlans[5], nutrition: 'double' },
+    6: { sessions: [session('Bici larga o carrera continua', 'Long', 'Una sesión principal', 'Elige bici Z2 1,5–3 h o carrera suave 35–60 min. No ambas intensas.', '🚴')], gymExercises: [], nutrition: 'long' },
+    0: { sessions: [session('Recuperación activa o descanso', 'Recovery', '30–90 min máximo', 'Bici muy suave, carrera fácil o descanso. Prioridad: llegar fresco al lunes.', '🌿')], gymExercises: [], nutrition: 'recovery' }
+  };
+  return plan[day];
+}

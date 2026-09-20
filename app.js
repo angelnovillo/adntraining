@@ -1,5 +1,3 @@
-/* Pega este archivo como app.js en la raíz del repositorio. */
-
 const names = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
 const longNames = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
 let selected = new Date();
@@ -8,187 +6,129 @@ const today = new Date();
 today.setHours(12, 0, 0, 0);
 
 const $ = selector => document.querySelector(selector);
-const esc = value => String(value).replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
 const dateKey = date => date.toISOString().slice(0, 10);
-const sameDay = (first, second) => first.toDateString() === second.toDateString();
+const sameDay = (a, b) => a.toDateString() === b.toDateString();
+const esc = value => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
 
-function weekStart(date) {
-  const result = new Date(date);
-  const day = result.getDay() || 7;
-  result.setDate(result.getDate() - day + 1);
-  return result;
+function load(key, fallback) { try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; } }
+function save(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+function weekStart(date) { const output = new Date(date); const day = output.getDay() || 7; output.setDate(output.getDate() - day + 1); return output; }
+
+function getLog(date = selected) {
+  const logs = load('adntraining-v2-logs', {});
+  return logs[dateKey(date)] || { status: 'pending', note: '', mealChecks: {}, homeMeal: null, extras: [] };
 }
-
-function load(key, fallback) {
-  try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
-}
-
-function save(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
-}
-
-function getDayLog() {
-  const all = load('adntraining-day-log', {});
-  return all[dateKey(selected)] || { meals: {}, home: null, extras: [] };
-}
-
-function setDayLog(nextLog) {
-  const all = load('adntraining-day-log', {});
-  all[dateKey(selected)] = nextLog;
-  save('adntraining-day-log', all);
+function setLog(log, date = selected) {
+  const logs = load('adntraining-v2-logs', {});
+  logs[dateKey(date)] = log;
+  save('adntraining-v2-logs', logs);
 }
 
 function renderWeek() {
-  const root = $('#week');
-  root.innerHTML = '';
+  const root = $('#week'); root.innerHTML = '';
   const start = weekStart(selected);
-
-  for (let index = 0; index < 7; index += 1) {
-    const date = new Date(start);
-    date.setDate(start.getDate() + index);
+  for (let i = 0; i < 7; i += 1) {
+    const date = new Date(start); date.setDate(start.getDate() + i);
+    const status = getLog(date).status;
     const button = document.createElement('button');
-    button.className = 'day-pill' + (sameDay(date, selected) ? ' active' : '') + (sameDay(date, today) ? ' today' : '');
-    button.innerHTML = `<span class="name">${names[date.getDay()]}</span><span class="num">${date.getDate()}</span>`;
+    button.className = `day-pill ${sameDay(date, selected) ? 'active' : ''} ${sameDay(date, today) ? 'today' : ''} ${status}`;
+    button.innerHTML = `<span class="name">${names[date.getDay()]}</span><span class="num">${date.getDate()}</span><i></i>`;
     button.addEventListener('click', () => { selected = date; render(); });
     root.appendChild(button);
   }
 }
 
-function renderExercise(exercise) {
-  return `<details class="workout"><summary><span class="icon">${exercise.icon}</span><div class="exercise-meta"><strong>${esc(exercise.title)}</strong><small>${esc(exercise.group)}</small></div><span class="sets">${esc(exercise.sets)}<br><small>${esc(exercise.rest)}</small></span><span class="chevron">⌄</span></summary><div class="exercise-detail"><div class="detail-grid"><div class="stat"><span>Series · repes</span><b>${esc(exercise.sets)}</b></div><div class="stat"><span>Descanso</span><b>${esc(exercise.rest)}</b></div></div><p class="notes">${esc(exercise.notes)}</p><div class="alt"><b>Alternativa:</b> ${esc(exercise.alt)}</div>${exercise.video ? `<a class="video" target="_blank" rel="noopener" href="${exercise.video}">▶ Ver técnica en vídeo</a>` : ''}${exercise.image ? `<div class="media"><img src="${exercise.image}" alt="Referencia visual: ${esc(exercise.title)}" loading="lazy"></div>` : ''}</div></details>`;
+function renderSessions(items) {
+  return items.map(item => `<article class="session-card"><span class="session-icon">${item.icon}</span><div><span class="session-kind">${esc(item.kind)}</span><h4>${esc(item.title)}</h4><p>${esc(item.notes)}</p></div><b>${esc(item.target)}</b></article>`).join('');
 }
 
-function mealTotals(profile, log) {
-  const followed = profile.meals.filter(item => log.meals[item.slot]);
-  const total = followed.reduce((acc, item) => ({ kcal: acc.kcal + item.kcal, protein: acc.protein + item.protein, carbs: acc.carbs + item.carbs, fat: acc.fat + item.fat }), { kcal: 0, protein: 0, carbs: 0, fat: 0 });
-  const home = log.home ? homeMeals[log.home] : null;
-  if (home) {
-    const main = profile.meals.find(item => item.slot === 'Comida') || profile.meals.find(item => item.slot.includes('comida'));
-    if (main && log.meals[main.slot]) {
-      total.kcal += home.estimate.kcal - main.kcal;
-      total.protein += home.estimate.protein - main.protein;
-      total.carbs += home.estimate.carbs - main.carbs;
-      total.fat += home.estimate.fat - main.fat;
-    }
+function renderExercise(item) {
+  return `<details class="workout"><summary><span class="icon">${item.icon}</span><div class="exercise-meta"><strong>${esc(item.title)}</strong><small>${esc(item.group)}</small></div><span class="sets">${esc(item.sets)}<br><small>${esc(item.rest)}</small></span><span class="chevron">⌄</span></summary><div class="exercise-detail"><div class="detail-grid"><div class="stat"><span>Series · repes</span><b>${esc(item.sets)}</b></div><div class="stat"><span>Descanso</span><b>${esc(item.rest)}</b></div></div><p class="notes"><b>Por qué y cómo:</b> ${esc(item.notes)}</p><div class="alt"><b>Si está ocupada:</b> ${esc(item.alt)}</div>${item.video ? `<a class="video" target="_blank" rel="noopener" href="${item.video}">▶ Ver técnica en vídeo</a>` : ''}${item.image ? `<div class="media"><img src="${item.image}" loading="lazy" alt="Referencia visual: ${esc(item.title)}"></div>` : ''}</div></details>`;
+}
+
+function getMeals(profileKey) { return mealTemplates[profileKey] || mealTemplates.training; }
+function getNutritionTotal(profile, log) {
+  const meals = getMeals(profile);
+  const checks = Object.values(log.mealChecks).filter(Boolean).length;
+  const total = { kcal: 0, protein: 0, carbs: 0, fat: 0 };
+  const fraction = meals.length ? checks / meals.length : 0;
+  total.kcal = profile.kcal * fraction;
+  total.protein = profile.protein * fraction;
+  total.carbs = profile.carbs * fraction;
+  total.fat = profile.fat * fraction;
+  if (log.homeMeal && log.mealChecks.Comida) {
+    const home = homeMeals[log.homeMeal];
+    total.kcal += home.kcal - profile.kcal / meals.length;
+    total.protein += home.protein - profile.protein / meals.length;
+    total.carbs += home.carbs - profile.carbs / meals.length;
+    total.fat += home.fat - profile.fat / meals.length;
   }
   (log.extras || []).forEach(extra => { total.kcal += Number(extra.kcal) || 0; total.protein += Number(extra.protein) || 0; total.carbs += Number(extra.carbs) || 0; total.fat += Number(extra.fat) || 0; });
   return total;
 }
+function macro(label, current, target, unit = 'g') { const value = Math.round(current); const width = Math.min(100, Math.round((current / target) * 100)); return `<div class="macro"><div><span>${label}</span><b>${value} / ${target}${unit}</b></div><i><em style="width:${width}%"></em></i></div>`; }
 
-function macroCard(label, amount, target, unit = 'g') {
-  const percent = Math.min(100, Math.round((amount / target) * 100));
-  return `<div class="macro"><div class="macro-top"><span>${label}</span><b>${Math.round(amount)} / ${target}${unit}</b></div><div class="bar"><i style="width:${percent}%"></i></div></div>`;
-}
+function renderNutrition(profileKey) {
+  const profile = nutritionProfiles[profileKey];
+  const log = getLog();
+  const meals = getMeals(profileKey);
+  const total = getNutritionTotal(profile, log);
+  const chosenHome = log.homeMeal ? homeMeals[log.homeMeal] : null;
 
-function renderNutrition(dayPlan) {
-  const profile = nutrition[dayPlan.nutritionType];
-  const activeProfile = profile.meals.length ? profile : nutrition.bike;
-  const log = getDayLog();
-  const totals = mealTotals(activeProfile, log);
-  const target = profile.target;
-  const extraNote = profile.extra ? `<div class="nutrition-note"><b>Ajuste del día:</b> ${esc(profile.extra)}</div>` : '';
-
-  const meals = activeProfile.meals.map(item => {
-    const checked = Boolean(log.meals[item.slot]);
-    const swaps = item.swaps?.length ? `<p class="swaps"><b>Alternativas:</b> ${item.swaps.map(esc).join(' · ')}</p>` : '';
-    return `<article class="meal-card ${checked ? 'done' : ''}"><div class="meal-head"><div><span class="meal-slot">${esc(item.slot)}</span><h4>${esc(item.title)}</h4></div><label class="check"><input type="checkbox" data-meal="${esc(item.slot)}" ${checked ? 'checked' : ''}><span>Hecho</span></label></div><p class="quantity">${esc(item.quantity)}</p><div class="meal-macros">≈ ${item.kcal} kcal · P ${item.protein} g · HC ${item.carbs} g · G ${item.fat} g</div><p class="meal-why"><b>Por qué:</b> ${esc(item.why)}</p>${item.timing ? `<p class="timing">⏱ ${esc(item.timing)}</p>` : ''}${swaps}</article>`;
+  const mealHtml = meals.map(([slot, title, qty, why]) => {
+    const shortSlot = slot.startsWith('Comida') ? 'Comida' : slot;
+    const checked = Boolean(log.mealChecks[shortSlot]);
+    return `<article class="meal-card ${checked ? 'done' : ''}"><div class="meal-head"><div><span>${esc(slot)}</span><h4>${esc(title)}</h4></div><label><input type="checkbox" data-meal="${esc(shortSlot)}" ${checked ? 'checked' : ''}> Hecho</label></div><p class="quantity">${esc(qty)}</p><p><b>Por qué:</b> ${esc(why)}</p></article>`;
   }).join('');
 
-  const homeOptions = Object.entries(homeMeals).map(([key, item]) => `<button class="home-option ${log.home === key ? 'selected' : ''}" data-home="${key}"><b>${esc(item.name)}</b><span>≈ ${item.estimate.kcal} kcal · ${item.estimate.protein} g proteína</span></button>`).join('');
-  const selectedHome = log.home ? homeMeals[log.home] : null;
+  const homeHtml = Object.entries(homeMeals).map(([key, meal]) => `<button class="home-option ${log.homeMeal === key ? 'selected' : ''}" data-home="${key}"><b>${esc(meal.name)}</b><span>≈ ${meal.kcal} kcal · P ${meal.protein} g</span></button>`).join('');
 
-  $('#nutrition').innerHTML = `<section class="nutrition-hero"><div><p class="eyebrow">Nutrición de hoy</p><h3>${esc(profile.label)}</h3><p>${esc(profile.context)}</p></div><div class="goal-kcal"><span>Objetivo</span><b>${target.kcal}</b><small>kcal aprox.</small></div></section><div class="macro-grid">${macroCard('Calorías', totals.kcal, target.kcal, ' kcal')}${macroCard('Proteína', totals.protein, target.protein)}${macroCard('Hidratos', totals.carbs, target.carbs)}${macroCard('Grasas', totals.fat, target.fat)}</div>${extraNote}<div class="section-title"><h3>Menú base</h3><span>Marca lo que sigas</span></div><div class="meals">${meals}</div><div class="home-box"><div class="section-title"><h3>¿Qué hay en casa hoy?</h3><span>Cuenta como comida</span></div><p>La comida de casa no rompe el plan: sustituye la comida principal. Selecciónala para ver qué aporta y cómo equilibrar merienda y cena.</p><div class="home-options">${homeOptions}</div>${selectedHome ? `<div class="home-advice"><h4>${esc(selectedHome.name)}</h4><p><b>Qué aporta:</b> ${esc(selectedHome.why)}</p><p><b>Cómo encajarlo:</b> ${esc(selectedHome.advice)}</p></div>` : ''}</div><div class="extra-box"><div class="section-title"><h3>Extra o fuera de plan</h3><span>Sin culpa, con contexto</span></div><p>Registra solo lo que se salga de tu menú base. Una comida social no exige compensar con ayuno o cardio; importa la media semanal.</p><form id="extraForm"><input name="name" required placeholder="Ej.: 2 porciones de pizza" aria-label="Descripción del extra"><input name="kcal" type="number" min="0" required placeholder="kcal aprox." aria-label="Calorías aproximadas"><details><summary>Macros opcionales</summary><div class="optional-macros"><input name="protein" type="number" min="0" placeholder="Proteína g"><input name="carbs" type="number" min="0" placeholder="Hidratos g"><input name="fat" type="number" min="0" placeholder="Grasas g"></div></details><button class="add-extra" type="submit">+ Añadir extra</button></form><div class="extra-list">${(log.extras || []).map((item, index) => `<div><span>${esc(item.name)} · ${item.kcal} kcal</span><button data-remove-extra="${index}">Eliminar</button></div>`).join('')}</div></div>`;
+  $('#nutrition').innerHTML = `<div class="section-title"><h3>Nutrición de hoy</h3><span>${profile.kcal} kcal objetivo</span></div><section class="nutrition-hero"><div><p class="eyebrow">Volumen limpio</p><h3>${esc(profile.note)}</h3><p>Base sencilla con pan blanco tostado, fruta, arroz, pasta, patata, ñoquis, pollo, magro, queso de Burgos y comida de casa. Marca el menú que sigas; registra únicamente extras o cambios.</p></div></section><div class="macro-grid">${macro('Kcal', total.kcal, profile.kcal, ' kcal')}${macro('Proteína', total.protein, profile.protein)}${macro('Hidratos', total.carbs, profile.carbs)}${macro('Grasas', total.fat, profile.fat)}</div><div class="section-title"><h3>Menú base</h3><span>La comida de casa cuenta</span></div><div class="meals">${mealHtml}</div><section class="home-box"><h3>¿Qué hay en casa hoy?</h3><p>Selecciona el plato si sustituye la comida del menú. No necesitas decir que no al potaje, a las lentejas o al pisto: el plan adapta lo demás alrededor.</p><div class="home-options">${homeHtml}</div>${chosenHome ? `<div class="home-advice"><h4>${esc(chosenHome.name)}</h4><p><b>Qué aporta:</b> ${esc(chosenHome.why)}</p><p><b>Cómo encajarlo:</b> ${esc(chosenHome.advice)}</p></div>` : ''}</section><section class="extra-box"><h3>Extra o fuera de plan</h3><p>Úsalo para comida social, restaurante o capricho. Se registra sin compensar con ayuno o cardio: importa la tendencia semanal.</p><form id="extraForm"><input name="name" required placeholder="Ej.: 2 porciones de pizza"><input name="kcal" required min="0" type="number" placeholder="kcal aprox."><button>Añadir</button></form><div class="extra-list">${(log.extras || []).map((extra, i) => `<div><span>${esc(extra.name)} · ${extra.kcal} kcal</span><button data-extra-remove="${i}">Eliminar</button></div>`).join('')}</div></section>`;
 
-  document.querySelectorAll('[data-meal]').forEach(input => input.addEventListener('change', event => {
-    const next = getDayLog();
-    next.meals[event.target.dataset.meal] = event.target.checked;
-    setDayLog(next);
-    renderNutrition(dayPlan);
-  }));
+  document.querySelectorAll('[data-meal]').forEach(input => input.addEventListener('change', event => { const next = getLog(); next.mealChecks[event.target.dataset.meal] = event.target.checked; setLog(next); renderNutrition(profileKey); renderSummary(); }));
+  document.querySelectorAll('[data-home]').forEach(button => button.addEventListener('click', () => { const next = getLog(); next.homeMeal = next.homeMeal === button.dataset.home ? null : button.dataset.home; setLog(next); renderNutrition(profileKey); renderSummary(); }));
+  $('#extraForm').addEventListener('submit', event => { event.preventDefault(); const form = new FormData(event.currentTarget); const next = getLog(); next.extras.push({ name: form.get('name'), kcal: form.get('kcal') }); setLog(next); renderNutrition(profileKey); renderSummary(); });
+  document.querySelectorAll('[data-extra-remove]').forEach(button => button.addEventListener('click', () => { const next = getLog(); next.extras.splice(Number(button.dataset.extraRemove), 1); setLog(next); renderNutrition(profileKey); renderSummary(); }));
+}
 
-  document.querySelectorAll('[data-home]').forEach(button => button.addEventListener('click', () => {
-    const next = getDayLog();
-    next.home = next.home === button.dataset.home ? null : button.dataset.home;
-    setDayLog(next);
-    renderNutrition(dayPlan);
-  }));
-
-  $('#extraForm').addEventListener('submit', event => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const next = getDayLog();
-    next.extras.push({ name: form.get('name'), kcal: form.get('kcal'), protein: form.get('protein'), carbs: form.get('carbs'), fat: form.get('fat') });
-    setDayLog(next);
-    renderNutrition(dayPlan);
-  });
-
-  document.querySelectorAll('[data-remove-extra]').forEach(button => button.addEventListener('click', () => {
-    const next = getDayLog();
-    next.extras.splice(Number(button.dataset.removeExtra), 1);
-    setDayLog(next);
-    renderNutrition(dayPlan);
-  }));
+function renderCompletion(workout) {
+  const log = getLog();
+  const options = [['complete', '✓ Completo', '100%'], ['partial', '◐ Parcial', '50%'], ['missed', '× No realizado', '0%']];
+  $('#completion').innerHTML = `<p>Marca el resultado real. En gym, “completo” significa hacer la rutina prevista; en bici/run, cumplir el tipo y una duración razonable. No sirve para castigarte: sirve para ver patrones y ajustar.</p><div class="status-buttons">${options.map(([value, label, percent]) => `<button class="${log.status === value ? 'active ' + value : ''}" data-status="${value}"><b>${label}</b><span>${percent}</span></button>`).join('')}</div><textarea id="dayNote" placeholder="Nota opcional: sensaciones, dolor, motivo de ajuste...">${esc(log.note || '')}</textarea>`;
+  document.querySelectorAll('[data-status]').forEach(button => button.addEventListener('click', () => { const next = getLog(); next.status = button.dataset.status; setLog(next); renderCompletion(workout); renderWeek(); renderSummary(); }));
+  $('#dayNote').addEventListener('change', event => { const next = getLog(); next.note = event.target.value; setLog(next); });
 }
 
 function renderSummary() {
-  const root = $('#weeklySummary');
-  if (!root) return;
-  const start = weekStart(selected);
-  const logs = load('adntraining-day-log', {});
-  const weights = load('adntraining-weights', {});
-  let plannedKcal = 0; let loggedKcal = 0; let plannedProtein = 0; let loggedProtein = 0; let completedMeals = 0; let availableMeals = 0;
-  const rows = [];
-
-  for (let index = 0; index < 7; index += 1) {
-    const date = new Date(start); date.setDate(start.getDate() + index);
-    const currentPlan = plan[date.getDay()];
-    const profile = nutrition[currentPlan.nutritionType];
-    const effectiveProfile = profile.meals.length ? profile : nutrition.bike;
-    const log = logs[dateKey(date)] || { meals: {}, extras: [] };
-    const total = mealTotals(effectiveProfile, log);
-    plannedKcal += profile.target.kcal;
-    plannedProtein += profile.target.protein;
-    loggedKcal += total.kcal;
-    loggedProtein += total.protein;
-    completedMeals += Object.values(log.meals).filter(Boolean).length;
-    availableMeals += effectiveProfile.meals.length;
-    rows.push(`<tr><td>${names[date.getDay()]} ${date.getDate()}</td><td>${currentPlan.type.split(' · ')[0]}</td><td>${Math.round(total.kcal)} / ${profile.target.kcal}</td><td>${Math.round(total.protein)} / ${profile.target.protein} g</td></tr>`);
+  const root = $('#weeklySummary'); const start = weekStart(selected); const logs = load('adntraining-v2-logs', {}); const weights = load('adntraining-v2-weights', {});
+  let workoutScore = 0; let nutritionChecks = 0; let nutritionPossible = 0; let kcalSum = 0; let proteinSum = 0; const rows = []; const weekWeights = [];
+  for (let i = 0; i < 7; i += 1) {
+    const date = new Date(start); date.setDate(start.getDate() + i);
+    const plan = workoutFor(date); const profile = nutritionProfiles[plan.nutrition]; const log = logs[dateKey(date)] || { status: 'pending', mealChecks: {}, extras: [] }; const scoreMap = { complete: 1, partial: .5, missed: 0, pending: 0 }; const currentScore = scoreMap[log.status] ?? 0;
+    const total = getNutritionTotal(profile, log); const meals = getMeals(plan.nutrition);
+    workoutScore += currentScore; nutritionChecks += Object.values(log.mealChecks || {}).filter(Boolean).length; nutritionPossible += meals.length; kcalSum += total.kcal; proteinSum += total.protein;
+    if (weights[dateKey(date)]) weekWeights.push(Number(weights[dateKey(date)]));
+    rows.push(`<tr><td>${names[date.getDay()]} ${date.getDate()}</td><td>${log.status === 'complete' ? '✓' : log.status === 'partial' ? '◐' : log.status === 'missed' ? '×' : '—'}</td><td>${Math.round(total.kcal)} / ${profile.kcal}</td><td>${Math.round(total.protein)} / ${profile.protein} g</td></tr>`);
   }
-
-  const weightEntries = Object.entries(weights).filter(([key]) => { const d = new Date(`${key}T12:00:00`); return d >= start && d <= new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6, 12); }).map(([, value]) => Number(value)).filter(Boolean);
-  const averageWeight = weightEntries.length ? (weightEntries.reduce((a, b) => a + b, 0) / weightEntries.length).toFixed(1) : '—';
-  const adherence = availableMeals ? Math.round((completedMeals / availableMeals) * 100) : 0;
-  const suggestion = 'Mira la media de peso durante 2 semanas: si no sube aproximadamente 0,14–0,28 kg/semana, añade 100–150 kcal/día. Si sube claramente más deprisa durante 2 semanas, resta 100–150 kcal/día. Si estás dentro del rango, mantén.';
-
-  root.innerHTML = `<section class="weekly-hero"><p class="eyebrow">Resumen semanal</p><h2>Volumen limpio, con datos</h2><p>El objetivo no es registrar cada mordisco: es seguir la base, ver tendencias y ajustar poco a poco. La referencia es una ganancia lenta, no una subida rápida de peso.</p></section><div class="summary-grid"><div class="summary-card"><span>Media de peso</span><b>${averageWeight} kg</b><small>${weightEntries.length} registro(s) esta semana</small></div><div class="summary-card"><span>Adherencia menú base</span><b>${adherence}%</b><small>${completedMeals}/${availableMeals} comidas marcadas</small></div><div class="summary-card"><span>Kcal registradas</span><b>${Math.round(loggedKcal / 7)}</b><small>media/día · objetivo ${Math.round(plannedKcal / 7)}</small></div><div class="summary-card"><span>Proteína registrada</span><b>${Math.round(loggedProtein / 7)} g</b><small>media/día · objetivo ${Math.round(plannedProtein / 7)} g</small></div></div><div class="weight-box"><h3>Registrar peso matinal</h3><p>Pésate al levantarte, tras ir al baño y antes de desayunar. No juzgues un único día: la media semanal reduce el ruido de líquidos, sal e hidratos.</p><form id="weightForm"><input type="date" name="date" value="${dateKey(selected)}" required><input type="number" name="weight" min="35" max="150" step="0.1" placeholder="Peso en kg" required><button type="submit">Guardar peso</button></form></div><div class="adjustment"><h3>Ajuste de calorías</h3><p>${suggestion}</p></div><div class="weekly-table"><h3>Semana seleccionada</h3><table><thead><tr><th>Día</th><th>Plan</th><th>Kcal</th><th>Proteína</th></tr></thead><tbody>${rows.join('')}</tbody></table></div><div class="principles"><h3>Principios de esta fase</h3><ul><li>Proteína estable cerca de 110 g/día; el hidrato cambia según la carga.</li><li>80–90% alimentos base; 10–20% flexible. Los extras se registran, no se castigan.</li><li>La comida de casa cuenta como comida principal: no tienes que rechazar potajes, lentejas, pisto o magro.</li><li>Con tu historial digestivo, prioriza tolerancia: si algo causa dolor, ardor o náusea, sustitúyelo y consulta a un profesional sanitario.</li></ul></div>`;
-
-  $('#weightForm').addEventListener('submit', event => {
-    event.preventDefault();
-    const form = new FormData(event.currentTarget);
-    const next = load('adntraining-weights', {});
-    next[form.get('date')] = Number(form.get('weight'));
-    save('adntraining-weights', next);
-    renderSummary();
-  });
+  const trainingPercent = Math.round((workoutScore / 7) * 100);
+  const nutritionPercent = nutritionPossible ? Math.round((nutritionChecks / nutritionPossible) * 100) : 0;
+  const global = Math.round(trainingPercent * .7 + nutritionPercent * .3);
+  const avgWeight = weekWeights.length ? (weekWeights.reduce((a,b) => a+b,0) / weekWeights.length).toFixed(1) : '—';
+  root.innerHTML = `<section class="weekly-hero"><p class="eyebrow">Resumen semanal</p><h2>Consistencia antes que perfección</h2><p>Gym tiene el mayor peso porque tu prioridad es construir tren superior. Nutrición ayuda a que la carga se traduzca en recuperación y ganancia gradual.</p></section><div class="summary-grid"><article><span>Éxito global</span><b>${global}%</b><small>70% entreno · 30% nutrición</small></article><article><span>Entrenamiento</span><b>${trainingPercent}%</b><small>Completo 100 · parcial 50</small></article><article><span>Nutrición base</span><b>${nutritionPercent}%</b><small>Comidas marcadas</small></article><article><span>Peso medio</span><b>${avgWeight} kg</b><small>${weekWeights.length} registro(s)</small></article></div><section class="weight-box"><h3>Registrar peso matinal</h3><p>Al levantarte, tras ir al baño y antes de desayunar. La media semanal importa más que una subida o bajada puntual por líquidos o hidratos.</p><form id="weightForm"><input type="date" name="date" value="${dateKey(selected)}"><input type="number" name="weight" min="35" max="150" step="0.1" placeholder="kg"><button>Guardar</button></form></section><section class="adjustment"><h3>Ajuste de calorías</h3><p>Durante dos semanas, busca una ganancia aproximada de 0,14–0,28 kg/semana. Si no subes, añade 100–150 kcal/día; si subes claramente más durante dos semanas, resta 100–150 kcal. Si estás en rango, no cambies nada.</p></section><section class="weekly-table"><h3>Semana seleccionada</h3><table><thead><tr><th>Día</th><th>Estado</th><th>Kcal</th><th>Proteína</th></tr></thead><tbody>${rows.join('')}</tbody></table></section>`;
+  $('#weightForm').addEventListener('submit', event => { event.preventDefault(); const form = new FormData(event.currentTarget); const all = load('adntraining-v2-weights', {}); all[form.get('date')] = Number(form.get('weight')); save('adntraining-v2-weights', all); renderSummary(); });
 }
 
 function render() {
-  const dayPlan = plan[selected.getDay()];
-  const dayName = longNames[selected.getDay()];
-  const month = selected.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+  const phase = phaseFor(selected); const workout = workoutFor(selected); const dayName = longNames[selected.getDay()];
   $('#dateTitle').textContent = `${dayName[0].toUpperCase()}${dayName.slice(1)} ${selected.getDate()}`;
-  $('#dateSub').textContent = month;
-  const hero = $('#hero');
-  hero.style.setProperty('--hero1', dayPlan.color);
-  hero.style.setProperty('--hero2', dayPlan.color2);
-  hero.innerHTML = `<span class="tag">${dayPlan.type}</span><h2>${dayPlan.title}</h2><p>${dayPlan.intro}</p><div class="chips">${dayPlan.chips.map(chip => `<span class="chip">${chip}</span>`).join('')}</div>`;
-  $('#workoutTitle').textContent = dayPlan.type.includes('GYM') ? 'Rutina de hoy' : 'Sesión de hoy';
-  $('#workouts').innerHTML = dayPlan.sessions.map(renderExercise).join('');
-  $('#effort').textContent = dayPlan.effort;
-  $('#recovery').innerHTML = `<p>Para que esta sesión sume y no reste:</p><ul>${dayPlan.recovery.map(item => `<li>${esc(item)}</li>`).join('')}</ul>`;
-  renderNutrition(dayPlan);
-  renderWeek();
-  renderSummary();
+  $('#dateSub').textContent = selected.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+  $('#phaseCard').innerHTML = `<article class="phase-card" style="--phase:${phase.color}"><span>${phase.label}</span><b>${phase.range}</b><p>${phase.description}</p></article>`;
+  $('#hero').style.setProperty('--hero1', phase.color); $('#hero').style.setProperty('--hero2', '#14243a');
+  $('#hero').innerHTML = `<span class="tag">${phase.label}</span><h2>${workout.sessions[0].title}</h2><p>${workout.sessions.map(item => item.notes).join(' ')}</p>`;
+  $('#effort').textContent = phase.effort;
+  $('#sessions').innerHTML = renderSessions(workout.sessions);
+  $('#gymSection').innerHTML = workout.gymExercises.length ? `<div class="section-title"><h3>Rutina de máquinas</h3><span>Descanso incluido</span></div><div class="workouts">${workout.gymExercises.map(renderExercise).join('')}</div>` : `<section class="no-gym"><h3>${phase.id === 'prep' ? 'Sin gym hasta el 1 de octubre' : 'Hoy no toca gimnasio'}</h3><p>${phase.id === 'prep' ? 'Esta fase protege tu recuperación y te permite llegar con ganas al inicio. Usa este tiempo para organizar horarios, registrar peso y mantener bici/carrera con cabeza.' : 'La prioridad del día es la sesión principal indicada arriba. El descanso también es parte de progresar.'}</p></section>`;
+  renderCompletion(workout); renderNutrition(workout.nutrition); renderWeek(); renderSummary();
 }
 
 $('#prevBtn').addEventListener('click', () => { selected.setDate(selected.getDate() - 1); render(); });
