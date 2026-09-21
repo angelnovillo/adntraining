@@ -63,78 +63,242 @@ const homeMeals = {
   potaje: {
     name: 'Potaje de alubias, espinacas, pollo y patata',
     grams: 'Alubias cocidas 220 g + pollo 120 g + patata 180 g + espinaca',
-    alt: 'Si falta pollo: 2 huevos + 80 g jamon york. Si falta patata: 80 g arroz seco o 100 g pan.',
+    alt: 'Si la ración lleva poco pollo: añade 1 lata de atún al natural, 2 huevos + claras o un pudding/leche alta en proteína en otra toma. Si falta patata: 80 g arroz seco o 100 g pan.',
     kcal: 650, protein: 35, carbs: 85, fat: 16
   },
   lentejas: {
     name: 'Lentejas con pollo y patata',
     grams: 'Lentejas cocidas 240 g + pollo 120 g + patata 160 g',
-    alt: 'Si falta pollo: magro 140 g o queso de Burgos 200 g. Si falta patata: pan 90 g.',
+    alt: 'Si falta pollo: magro/lomo 140–170 g, 1 lata de atún o tortilla de 2 huevos + claras. Si falta patata: pan 90 g.',
     kcal: 640, protein: 34, carbs: 82, fat: 15
   },
   magro: {
     name: 'Magro con tomate',
     grams: 'Magro 170 g + arroz/pasta 90 g seco o patata 350 g',
-    alt: 'Si falta magro: pollo 170 g o 2 latas de atun. Si falta arroz: pan 100 g o noquis 300 g.',
+    alt: 'Si falta magro: pollo 170 g, lomo de cerdo, 1–2 latas de atún, pescado blanco o tortilla de huevos + claras. Si falta arroz: pan 100 g o ñoquis 300 g.',
     kcal: 700, protein: 42, carbs: 88, fat: 18
   },
   pisto: {
     name: 'Pisto manchego completo',
-    grams: 'Pisto 250 g + 2 huevos + pan 90 g o patata 300 g',
-    alt: 'Si falta huevo: pollo 150 g o queso de Burgos 220 g. Si falta pan: arroz 80 g seco.',
+    grams: 'Pisto 250 g + 2 huevos + 200 ml de claras + pan 90 g o patata 300 g',
+    alt: 'Si faltan huevos: pollo/lomo 150–170 g o atún al natural. Si falta pan: arroz 80 g seco. El pisto necesita una proteína y un hidrato para ser comida completa.',
     kcal: 620, protein: 32, carbs: 78, fat: 20
   },
   pasta: {
     name: 'Pasta con pollo y tomate',
     grams: 'Pasta 100 g seco + pollo 170 g + tomate',
-    alt: 'Si falta pasta: arroz 100 g seco o noquis 300 g. Si falta pollo: magro 170 g.',
+    alt: 'Si falta pollo: magro, lomo, 1–2 latas de atún, pescado blanco o tortilla de huevos + claras. Si falta pasta: arroz 100 g seco o ñoquis 300 g.',
     kcal: 720, protein: 40, carbs: 105, fat: 15
   },
   arroz: {
     name: 'Arroz con pollo o magro',
     grams: 'Arroz 100 g seco + pollo/magro 170 g + verdura',
-    alt: 'Si falta arroz: pasta 100 g seco, patata 400 g o pan 110 g.',
+    alt: 'Si falta pollo/magro: atún, pescado, lomo o tortilla de 2 huevos + claras. Si falta arroz: pasta 100 g seco, patata 400 g o pan 110 g.',
     kcal: 700, protein: 40, carbs: 100, fat: 15
   }
 };
 
+const proteinBoosters = {
+  milkProtein: {
+    id: 'leche-proteica',
+    title: 'Leche alta en proteína',
+    portion: '330 ml (1 botella)',
+    protein: '20–25 g',
+    use: 'Desayuno, merienda o después de entrenar. Cero cocina y fácil de combinar con fruta o pan.',
+    alt: 'Batido de whey/isolate con agua, 1 pudding proteico o 1 bol de queso fresco batido alto en proteína.'
+  },
+  pudding: {
+    id: 'pudding-proteico',
+    title: 'Pudding o natilla proteica',
+    portion: '1 tarrina',
+    protein: '15–20 g',
+    use: 'Postre o merienda rápida cuando no apetece cocinar ni comer más carne.',
+    alt: 'Skyr/yogur alto en proteína o queso fresco batido alto en proteína.'
+  },
+  skyr: {
+    id: 'skyr',
+    title: 'Skyr o yogur alto en proteína',
+    portion: '1 bol/tarrina grande',
+    protein: '15–20 g',
+    use: 'Media mañana, merienda o postre. Añade fruta si necesitas más hidrato.',
+    alt: 'Pudding proteico, leche alta en proteína o queso fresco batido.'
+  },
+  whey: {
+    id: 'batido',
+    title: 'Batido de proteína opcional',
+    portion: '1 scoop con agua',
+    protein: '20–25 g',
+    use: 'Comodín: úsalo solo si al final del día te faltan aproximadamente 20–25 g. No sustituye sistemáticamente una comida.',
+    alt: 'Leche alta en proteína, 1 lata de atún al natural, 200 ml de claras en comida/cena o 2 huevos + un lácteo proteico.'
+  },
+  tuna: {
+    id: 'atun',
+    title: 'Atún al natural',
+    portion: '1 lata escurrida',
+    protein: '18–25 g',
+    use: 'Plan B de comida o cena para pasta, arroz, pisto o bocadillo.',
+    alt: 'Caballa/sardinas en conserva, pollo, magro, lomo o tortilla.'
+  },
+  eggs: {
+    id: 'huevos',
+    title: 'Huevos y claras',
+    portion: '2 huevos + 200 ml claras',
+    protein: '30–35 g',
+    use: 'Comida o cena rápida: tortilla/revuelto con pisto, patata, arroz o pan.',
+    alt: 'Pollo, magro, lomo de cerdo, pescado o atún.'
+  }
+};
+
 const commonMeals = {
-  breakfast: { id: 'desayuno', time: '08:30', slot: 'Desayuno', title: 'Pan tostado + queso de Burgos + fruta', qty: 'Pan 100 g + queso de Burgos 100 g + 1 fruta', alt: ['Si falta queso: jamon york 80 g', 'Si falta pan: patata cocida 250 g o tortitas de arroz'], why: 'Hidrato facil y proteina temprana sin cargar grasa.' },
-  mid: { id: 'media', time: '11:30', slot: 'Media manana', title: 'Fruta + pan con jamon york', qty: '1 fruta + pan 70 g + jamon york 60-80 g', alt: ['Si falta jamon: queso de Burgos 150 g', 'Si falta fruta: pan 30 g extra'], why: 'Mantiene energia y evita llegar vacio a la tarde.' },
-  meal: { id: 'comida', time: '14:30', slot: 'Comida', title: 'Comida de casa o pasta/arroz + pollo/magro', qty: 'Plato de casa o pasta/arroz 95-100 g seco + proteina 170 g', alt: ['Potaje, lentejas, magro, pisto completo, pasta o arroz', 'Si falta pasta/arroz: patata 400 g o pan 110 g'], why: 'La comida de casa sustituye la base, no se suma encima.' },
-  pre: { id: 'pre', time: '17:30', slot: 'Pre-entreno', title: 'Platano + pan tostado + proteina ligera', qty: '1 platano + pan 70 g + jamon york 60 g o queso 100 g', alt: ['Si falta platano: fruta + mermelada', 'Si falta pan: 5 tortitas de arroz'], why: 'Energia para entrenar a las 19:00 sin pesadez.' },
-  dinner: { id: 'cena', time: '21:15', slot: 'Cena post-entreno', title: 'Arroz, pasta o noquis + pollo/magro + fruta', qty: 'Arroz/pasta 100 g seco o noquis 300 g + proteina 170 g', alt: ['Si falta arroz/pasta: patata 450 g', 'Si falta proteina: huevos + jamon york'], why: 'Recuperacion y progresion de cargas.' }
+  breakfastCheese: {
+    id: 'desayuno-burgos',
+    time: '08:30',
+    slot: 'Desayuno',
+    title: 'Pan tostado + queso de Burgos + fruta',
+    qty: 'Pan blanco tostado 80–100 g + 1–2 tarrinas de Burgos (62,5–125 g) + 1 fruta',
+    proteinApprox: '7–15 g',
+    alt: [
+      'Más proteína sin cocinar: añade 330 ml de leche alta en proteína',
+      'Alternativa: pan 80 g + jamón york 80–100 g + fruta',
+      'Alternativa: pan 80 g + 2 huevos + fruta'
+    ],
+    why: 'El queso de Burgos se usa como complemento: una tarrina de 62,5 g no basta por sí sola para un desayuno alto en proteína. La leche alta en proteína es la forma sencilla de completar.'
+  },
+  breakfastProtein: {
+    id: 'desayuno-leche-proteica',
+    time: '08:30',
+    slot: 'Desayuno',
+    title: 'Leche alta en proteína + pan tostado + fruta',
+    qty: 'Leche alta en proteína 330 ml + pan blanco tostado 80–100 g + 1 fruta',
+    proteinApprox: '20–25 g',
+    alt: [
+      '1 pudding/natilla proteica + pan 80–100 g + fruta',
+      'Skyr/yogur alto en proteína + pan 80–100 g + fruta',
+      'Batido de proteína opcional + pan + fruta'
+    ],
+    why: 'Desayuno muy práctico para elevar la proteína sin cocinar ni repetir siempre queso o jamón york. El pan y la fruta aportan hidrato útil para el día.'
+  },
+  midProtein: {
+    id: 'media-proteica',
+    time: '11:30',
+    slot: 'Media mañana',
+    title: 'Lácteo proteico + fruta',
+    qty: '1 pudding/natilla proteica o Skyr + 1 fruta',
+    proteinApprox: '15–20 g',
+    alt: [
+      '330 ml de leche alta en proteína + fruta',
+      '1–2 tarrinas de queso de Burgos + fruta',
+      'Pan 60–70 g + jamón york 80–100 g'
+    ],
+    why: 'Evita repetir bocadillo de jamón york cada día y añade una toma de proteína fácil de llevar, abrir y consumir sin cocinar.'
+  },
+  midYork: {
+    id: 'media-jamon',
+    time: '11:30',
+    slot: 'Media mañana',
+    title: 'Pan tostado con jamón york + fruta',
+    qty: 'Pan blanco tostado 60–70 g + jamón york 80–100 g + 1 fruta',
+    proteinApprox: '15–20 g',
+    alt: [
+      'Pudding/natilla proteica + fruta',
+      'Leche alta en proteína + pan 40–60 g',
+      'Skyr/yogur alto en proteína + fruta'
+    ],
+    why: 'Opción salada y rápida para rotar con lácteos proteicos. No tiene que aparecer todos los días.'
+  },
+  lunchHome: {
+    id: 'comida',
+    time: '14:30',
+    slot: 'Comida',
+    title: 'Comida de casa o plato principal completo',
+    qty: 'Usa el selector de comida de casa o una base de hidrato + 150–180 g de fuente proteica',
+    proteinApprox: '25–40 g',
+    alt: [
+      'Pasta/arroz/ñoquis + pollo, magro, lomo, atún o pescado',
+      'Pisto + tortilla de 2 huevos y 200 ml de claras + pan/patata',
+      'Potaje o lentejas con pollo; si falta proteína añade atún, huevo o lácteo proteico en otra toma'
+    ],
+    why: 'La comida principal es donde resulta más fácil sumar proteína real y variada. La comida de casa sustituye este bloque, no se considera extra.'
+  },
+  preSimple: {
+    id: 'pre',
+    time: '17:30',
+    slot: 'Pre-entreno',
+    title: 'Plátano + hidrato fácil + proteína ligera',
+    qty: '1 plátano + pan blanco tostado 60–80 g o 4–6 tortitas + una opción proteica',
+    proteinApprox: '10–25 g',
+    alt: [
+      '330 ml de leche alta en proteína',
+      '1 pudding/natilla proteica',
+      'Jamón york 60–80 g o 1 tarrina de Burgos si te apetece salado'
+    ],
+    why: 'Antes de entrenar importa sobre todo llegar con hidrato disponible y buena digestión. La proteína es un complemento: evita hacer una merienda enorme o muy grasa.'
+  },
+  dinnerMeat: {
+    id: 'cena-carne',
+    time: '21:15',
+    slot: 'Cena post-entreno',
+    title: 'Hidrato + proteína magra + fruta',
+    qty: 'Arroz/pasta 90–110 g en seco o ñoquis 300 g + pollo/magro/lomo 150–180 g + fruta',
+    proteinApprox: '30–40 g',
+    alt: [
+      'Pasta con 1–2 latas de atún al natural',
+      'Pisto + 2 huevos + 200 ml claras + pan/patata',
+      'Pescado blanco + patata/arroz'
+    ],
+    why: 'La cena post-entreno no tiene que ser siempre pollo: magro, lomo, atún, huevos con claras o pescado permiten llegar al objetivo con variedad.'
+  },
+  dinnerLight: {
+    id: 'cena-ligera',
+    time: '21:15',
+    slot: 'Cena',
+    title: 'Cena ligera con proteína suficiente',
+    qty: 'Patata 250–350 g o pan 60–80 g + fuente proteica 150–170 g + verdura/pisto',
+    proteinApprox: '25–35 g',
+    alt: [
+      'Tortilla de 2 huevos + 200 ml claras + pan',
+      'Atún con patata/pan y tomate o pisto',
+      'Si la cena aporta menos de 25 g de proteína: añade 1 pudding/natilla proteica o 330 ml de leche alta en proteína'
+    ],
+    why: 'En recuperación se baja hidrato respecto a bici/gym, pero se mantiene una dosis útil de proteína para seguir construyendo músculo.'
+  }
 };
 
 const mealTemplates = {
   recovery: [
-    { ...commonMeals.breakfast, qty: 'Pan 80 g + queso de Burgos 100 g + 1 fruta' },
-    { ...commonMeals.mid, title: 'Fruta + jamon york', qty: '1 fruta + jamon york 60-80 g' },
-    { ...commonMeals.meal, qty: 'Plato de casa o arroz/pasta 80-90 g seco + proteina 160 g' },
-    { id: 'merienda', time: '17:30', slot: 'Merienda', title: 'Fruta + pan o queso fresco', qty: '1 fruta + pan 50 g o queso de Burgos 150 g', alt: ['Si hay poca hambre: solo fruta', 'Si entrenas suave: pan 70 g'], why: 'Mantiene energia sin convertir el descanso en deficit.' },
-    { id: 'cena', time: '21:15', slot: 'Cena', title: 'Pollo/magro + patata/pan + verdura', qty: 'Proteina 170 g + patata 300 g o pan 80 g + verdura', alt: ['Si falta patata: arroz 80 g seco', 'Si falta pollo: magro 170 g o huevos'], why: 'Proteina estable y carbohidrato moderado.' }
+    commonMeals.breakfastProtein,
+    commonMeals.midProtein,
+    { ...commonMeals.lunchHome, qty: 'Comida de casa o arroz/pasta 80–90 g en seco + fuente proteica 150–170 g' },
+    { id: 'merienda', time: '17:30', slot: 'Merienda', title: 'Fruta + proteína opcional', qty: '1–2 frutas + 1 tarrina de Burgos, Skyr o pudding proteico', proteinApprox: '6–20 g', alt: ['Si no tienes hambre: solo fruta', 'Si faltan proteínas: leche alta en proteína'], why: 'Merienda flexible que evita llegar con ansiedad a la cena sin forzar comida en un día suave.' },
+    commonMeals.dinnerLight
   ],
   bike: [
-    { ...commonMeals.breakfast, qty: 'Pan 100-110 g + queso 100 g + fruta' },
-    { ...commonMeals.mid, qty: '1 fruta + pan 70-80 g + jamon 60 g' },
-    { ...commonMeals.meal, qty: 'Plato de casa o arroz/pasta 100 g seco + pollo 170 g' },
-    { ...commonMeals.pre, title: 'Platano + pan tostado', qty: '1 platano + pan 80-90 g + jamon york opcional', why: 'Hidrato disponible y baja grasa.' },
-    { ...commonMeals.dinner, title: 'Arroz/pasta/noquis + pollo o magro + fruta', qty: 'Arroz/pasta 110 g seco o noquis 300 g + proteina 170 g' }
+    commonMeals.breakfastProtein,
+    commonMeals.midYork,
+    { ...commonMeals.lunchHome, qty: 'Comida de casa o arroz/pasta 100–110 g en seco + fuente proteica 150–180 g' },
+    { ...commonMeals.preSimple, qty: '1 plátano + pan blanco tostado 80–90 g o 5–6 tortitas + opción proteica ligera' },
+    { ...commonMeals.dinnerMeat, qty: 'Arroz/pasta 100–110 g en seco o ñoquis 300 g + proteína 150–180 g + fruta' }
   ],
-  training: [commonMeals.breakfast, commonMeals.mid, commonMeals.meal, commonMeals.pre, commonMeals.dinner],
+  training: [
+    commonMeals.breakfastProtein,
+    commonMeals.midProtein,
+    commonMeals.lunchHome,
+    commonMeals.preSimple,
+    commonMeals.dinnerMeat
+  ],
   double: [
-    { ...commonMeals.breakfast, qty: 'Pan 110 g + queso 100 g + fruta' },
-    commonMeals.mid,
-    { ...commonMeals.meal, qty: 'Plato de casa o pasta/arroz 110 g seco + proteina 170 g', why: 'Mas hidrato para gym + carrera.' },
-    { ...commonMeals.pre, qty: '1 platano + pan 90 g o 6 tortitas + jamon 60 g' },
-    { ...commonMeals.dinner, qty: 'Pasta/arroz 125 g seco o noquis 350 g + proteina 180 g' }
+    { ...commonMeals.breakfastProtein, qty: 'Leche alta en proteína 330 ml + pan blanco tostado 100–110 g + fruta' },
+    commonMeals.midYork,
+    { ...commonMeals.lunchHome, qty: 'Comida de casa o pasta/arroz 110 g en seco + fuente proteica 170–180 g', why: 'Gym + carrera necesita un poco más de hidrato, no más grasa.' },
+    { ...commonMeals.preSimple, qty: '1 plátano + pan blanco tostado 80–90 g o 5–6 tortitas + leche proteica/pudding/jamón york' },
+    { ...commonMeals.dinnerMeat, qty: 'Pasta/arroz 120–125 g en seco o ñoquis 350 g + proteína 170–180 g + fruta' }
   ],
   long: [
-    { id: 'antes', time: '08:00', slot: 'Antes de salir', title: 'Platano + pan con miel/mermelada', qty: '1-2 platanos + pan 80 g', alt: ['Si falta platano: fruta o zumo', 'Si falta pan: tortitas 6 unidades'], why: 'Hidrato facil antes de fondo.' },
-    { id: 'durante', time: '10:30', slot: 'Durante', title: 'Hidrato facil de transportar', qty: '30-60 g hidrato por hora si supera 90 min', alt: ['Bebida isotonica, gel, barrita o pan con mermelada'], why: 'Evita acabar vacio y mejora recuperacion.' },
-    { ...commonMeals.meal, slot: 'Comida post-entreno', qty: 'Plato de casa o pasta/arroz 110 g seco + pollo 170 g', why: 'Reponer energia tras una sesion larga.' },
-    { id: 'merienda', time: '17:30', slot: 'Merienda', title: 'Fruta + queso o pan con jamon', qty: '1-2 frutas + queso 150 g o pan 70 g + jamon 60 g', alt: ['Si falta queso/jamon: atun o huevos'], why: 'Sigue recuperando durante la tarde.' },
-    { id: 'cena', time: '21:15', slot: 'Cena', title: 'Patata/arroz/noquis + proteina magra', qty: 'Patata 400 g o arroz 90 g seco + proteina 170 g', alt: ['Si falta patata/arroz: pasta 90 g seco o pan 100 g'], why: 'Cierra el dia sin deficit excesivo.' }
+    { id: 'antes', time: '08:00', slot: 'Antes de salir', title: 'Hidrato fácil para fondo', qty: '1–2 plátanos + pan blanco tostado 80 g con miel/mermelada', proteinApprox: '0–10 g', alt: ['Tortitas de arroz/maíz + miel o mermelada', 'Si entra bien: leche alta en proteína pequeña'], why: 'Antes de bici/carrera de mañana prioriza tolerancia y carbohidrato. No hace falta forzar una gran dosis de proteína aquí.' },
+    { id: 'durante', time: '10:30', slot: 'Durante', title: 'Hidrato e hidratación', qty: '30–60 g de hidrato/hora si dura más de 90 min', proteinApprox: '0 g', alt: ['Plátano, bebida isotónica, gel, barrita baja en grasa o pan con mermelada'], why: 'Comer durante el fondo evita terminar vacío y facilita recuperar sin atracón posterior.' },
+    { ...commonMeals.lunchHome, slot: 'Comida post-entreno', qty: 'Comida de casa o pasta/arroz 110–120 g en seco + fuente proteica 170–180 g', why: 'Después de fondo, combina hidrato con una fuente proteica completa para recuperar.' },
+    { id: 'merienda', time: '17:30', slot: 'Merienda', title: 'Fruta + refuerzo proteico cómodo', qty: '1–2 frutas + leche proteica, pudding/Skyr o pan con jamón york', proteinApprox: '15–25 g', alt: ['1–2 tarrinas de Burgos como complemento', 'Batido opcional si el día va corto'], why: 'No dependes de cocinar ni de repetir carne: los lácteos proteicos ayudan a cerrar el día de fondo.' },
+    { ...commonMeals.dinnerMeat, qty: 'Patata 350–400 g o arroz 90 g en seco + proteína 150–180 g' }
   ]
 };
 
@@ -207,3 +371,12 @@ function workoutFor(date) {
   };
   return plan[day];
 }
+
+const proteinAlternativesForHomeMeals = {
+  potaje: 'Si la ración lleva poco pollo: añade 1 lata de atún al natural, 2 huevos + claras, un pudding proteico o leche alta en proteína en otra toma.',
+  lentejas: 'Si la ración lleva poco pollo: añade atún, lomo/magro, huevos con claras o un lácteo proteico de postre.',
+  magro: 'Si falta magro: pollo, lomo de cerdo, atún, pescado blanco o tortilla de huevos + claras.',
+  pisto: 'Completa con pollo, lomo, atún o tortilla de 2 huevos + 200 ml de claras; así deja de ser solo una guarnición.',
+  pasta: 'Si falta pollo: atún natural, magro, lomo, pescado blanco o huevos + claras.',
+  arroz: 'Si falta pollo/magro: atún, pescado, lomo o tortilla con claras.'
+};
